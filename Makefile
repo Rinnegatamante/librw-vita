@@ -12,6 +12,7 @@ CXX		= $(PREFIX)-g++
 AR      = $(PREFIX)-gcc-ar
 CFLAGS  = -g -Wl,-q -O2 -ffast-math -mtune=cortex-a9 -mfpu=neon -ftree-vectorize \
 	-DPSP2 -DDEBUG -DRW_GL3 -DLIBRW_GLAD
+CXXFLAGS = $(CFLAGS)
 ASFLAGS = $(CFLAGS)
 
 all: $(TARGET).a

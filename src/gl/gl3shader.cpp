@@ -149,16 +149,7 @@ linkprogram(GLint vs, GLint fs, GLuint *program)
 	glAttachShader(prog, vs);
 	glAttachShader(prog, fs);
 	glLinkProgram(prog);
-	glGetProgramiv(prog, GL_LINK_STATUS, &success);
-	if(!success){
-		fprintf(stderr, "Error in program\n");
-		glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &len);
-		log = (char*)rwMalloc(len, MEMDUR_FUNCTION);
-		glGetProgramInfoLog(prog, len, nil, log);
-		fprintf(stderr, "%s\n", log);
-		rwFree(log);
-		return 1;
-	}
+
 	*program = prog;
 	return 0;
 }

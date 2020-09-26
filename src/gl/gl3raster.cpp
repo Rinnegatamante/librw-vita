@@ -26,7 +26,7 @@ rasterCreateTexture(Raster *raster)
 	Gl3Raster *natras = PLUGINOFFSET(Gl3Raster, raster, nativeRasterOffset);
 	switch(raster->format & 0xF00){
 	case Raster::C8888:
-		natras->internalFormat = GL_RGBA8;
+		natras->internalFormat = GL_RGBA;
 		natras->format = GL_RGBA;
 		natras->type = GL_UNSIGNED_BYTE;
 		natras->hasAlpha = 1;
@@ -34,7 +34,7 @@ rasterCreateTexture(Raster *raster)
 		raster->depth = 32;
 		break;
 	case Raster::C888:
-		natras->internalFormat = GL_RGB8;
+		natras->internalFormat = GL_RGB;
 		natras->format = GL_RGB;
 		natras->type = GL_UNSIGNED_BYTE;
 		natras->hasAlpha = 0;
@@ -42,7 +42,7 @@ rasterCreateTexture(Raster *raster)
 		raster->depth = 24;
 		break;
 	case Raster::C1555:
-		natras->internalFormat = GL_RGB5_A1;
+		natras->internalFormat = GL_RGBA;
 		natras->format = GL_RGBA;
 		natras->type = GL_UNSIGNED_SHORT_5_5_5_1;
 		natras->hasAlpha = 1;
@@ -89,7 +89,7 @@ rasterCreateCameraTexture(Raster *raster)
 	Gl3Raster *natras = PLUGINOFFSET(Gl3Raster, raster, nativeRasterOffset);
 	switch(raster->format & 0xF00){
 	case Raster::C8888:
-		natras->internalFormat = GL_RGBA8;
+		natras->internalFormat = GL_RGBA;
 		natras->format = GL_RGBA;
 		natras->type = GL_UNSIGNED_BYTE;
 		natras->hasAlpha = 1;
@@ -97,14 +97,14 @@ rasterCreateCameraTexture(Raster *raster)
 		break;
 	case Raster::C888:
 	default:
-		natras->internalFormat = GL_RGB8;
+		natras->internalFormat = GL_RGB;
 		natras->format = GL_RGB;
 		natras->type = GL_UNSIGNED_BYTE;
 		natras->hasAlpha = 0;
 		natras->bpp = 3;
 		break;
 	case Raster::C1555:
-		natras->internalFormat = GL_RGB5_A1;
+		natras->internalFormat = GL_RGBA;
 		natras->format = GL_RGBA;
 		natras->type = GL_UNSIGNED_SHORT_5_5_5_1;
 		natras->hasAlpha = 1;
@@ -136,7 +136,7 @@ rasterCreateCameraTexture(Raster *raster)
 
 	glGenFramebuffers(1, &natras->fbo);
 	bindFramebuffer(natras->fbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, natras->texid, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, natras->texid, 0);
 	bindFramebuffer(0);
 	natras->fboMate = nil;
 
@@ -172,7 +172,7 @@ rasterCreateZbuffer(Raster *raster)
 	raster->stride = 0;
 	raster->pixels = nil;
 
-	natras->internalFormat = GL_DEPTH_COMPONENT;
+	/*natras->internalFormat = GL_DEPTH_COMPONENT;
 	natras->format = GL_DEPTH_COMPONENT;
 	natras->type = GL_UNSIGNED_BYTE;
 
@@ -188,7 +188,7 @@ rasterCreateZbuffer(Raster *raster)
 	bindTexture(prev);
 
 	natras->fbo = 0;
-	natras->fboMate = nil;
+	natras->fboMate = nil; */
 
 	return raster;
 }
@@ -270,23 +270,9 @@ memset(px, 0, raster->stride*raster->height);
 		raster->pixels = px;
 
 		if(lockMode & Raster::LOCKREAD || !(lockMode & Raster::LOCKNOFETCH)){
-#ifdef RW_GLES
-			GLuint fbo;
-GLenum e;
-			glGenFramebuffers(1, &fbo);
-			bindFramebuffer(fbo);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, natras->texid, 0);
-			e = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-assert(natras->format == GL_RGBA);
-			glReadPixels(0, 0, raster->width, raster->height, natras->format, natras->type, px);
-//e = glGetError(); printf("GL err4 %x (%x)\n", e, natras->format);
-			bindFramebuffer(0);
-			glDeleteFramebuffers(1, &fbo);
-#else
 			uint32 prev = bindTexture(natras->texid);
-			glGetTexImage(GL_TEXTURE_2D, level, natras->format, natras->type, px);
+			memcpy_neon(px, vglGetTexDataPointer(GL_TEXTURE_2D), raster->stride*raster->height);
 			bindTexture(prev);
-#endif
 		}
 
 		raster->privateFlags = lockMode;
@@ -516,7 +502,7 @@ destroyNativeRaster(void *object, int32 offset, int32)
 			Gl3Raster *oldfb = PLUGINOFFSET(Gl3Raster, natras->fboMate, nativeRasterOffset);
 			if(oldfb->fbo){
 				bindFramebuffer(oldfb->fbo);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+				//glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
 			}
 			oldfb->fboMate = nil;
 		}

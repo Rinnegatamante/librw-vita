@@ -4,6 +4,10 @@
 #include <switch.h>
 #endif
 
+#ifdef PSP2
+#include <vitasdk.h>
+#include <vitaGL.h>
+#else
 #ifndef LIBRW_GLAD
 #include <GL/glew.h>
 #else
@@ -16,6 +20,7 @@
 #include <GLFW/glfw3.h>
 #endif
 #endif
+#endif
 
 namespace rw {
 
@@ -25,7 +30,7 @@ struct EngineOpenParams
 #ifdef LIBRW_SDL2
 	SDL_Window **window;
 	bool32 fullscreen;
-#else
+#elif !defined(PSP2)
 	GLFWwindow **window;
 #endif
 	int width, height;
