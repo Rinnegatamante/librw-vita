@@ -17,12 +17,16 @@
 
 #define PLUGIN_ID 0
 
+extern uint16_t *gIndices;
+extern float *gVertexBuffer;
+extern uint16_t *gIndicesPtr;
+extern float *gVertexBufferPtr;
+
 namespace rw {
 namespace gl3 {
 #ifndef LIBRW_SDL2
 struct DisplayMode
 {
-	GLFWvidmode mode;
 	int32 depth;
 	uint32 flags;
 };
@@ -34,16 +38,12 @@ struct GlGlobals
 	SDL_Window *window;
 	SDL_GLContext glcontext;
 #else
-	GLFWwindow *window;
-
-	GLFWmonitor *monitor;
 	int numMonitors;
 	int currentMonitor;
 
 	DisplayMode *modes;
 	int numModes;
 	int currentMode;
-	GLFWwindow **pWindow;
 #endif
 	int presentWidth, presentHeight;
 
@@ -97,24 +97,6 @@ struct GLShaderState
 	RGBA matColor;
 	SurfaceProperties surfProps;
 };
-
-const char *shaderDecl330 = "#version 330\n";
-const char *shaderDecl100es =
-"#version 100\n"\
-"precision highp float;\n"\
-"precision highp int;\n";
-const char *shaderDecl310es =
-"#version 310 es\n"\
-"precision highp float;\n"\
-"precision highp int;\n";
-
-#ifdef RW_GLES3
-const char *shaderDecl = shaderDecl310es;
-#elif defined RW_GLES2
-const char *shaderDecl = shaderDecl100es;
-#else
-const char *shaderDecl = shaderDecl330;
-#endif
 
 // this needs a define in the shaders as well!
 //#define RW_GL_USE_UBOS
@@ -437,7 +419,7 @@ static GLint filterConvMap_NoMIP[] = {
 
 static GLint addressConvMap[] = {
 	0, GL_REPEAT, GL_MIRRORED_REPEAT,
-	GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER
+	GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE
 };
 
 static void
@@ -1041,7 +1023,7 @@ setFrameBuffer(Camera *cam)
 
 	// Have to make sure depth buffer is attached to FB's fbo
 	bindFramebuffer(natfb->fbo);
-	if(zbuf){
+	/*if(zbuf){
 		if(natfb->fboMate == zbuf){
 			// all good
 			assert(natzb->fboMate == fbuf);
@@ -1066,7 +1048,7 @@ setFrameBuffer(Camera *cam)
 		if(natfb->fboMate && natfb->fbo)
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
 		natfb->fboMate = nil;
-	}
+	}*/
 }
 
 static void
@@ -1150,7 +1132,8 @@ beginUpdate(Camera *cam)
 #ifdef LIBRW_SDL2
 		SDL_GetWindowSize(glGlobals.window, &w, &h);
 #else
-		glfwGetWindowSize(glGlobals.window, &w, &h);
+		w = 960;
+		h = 544;
 #endif
 	}else{
 		w = cam->frameBuffer->width;
@@ -1168,7 +1151,7 @@ static void
 clearCamera(Camera *cam, RGBA *col, uint32 mode)
 {
 	RGBAf colf;
-	GLbitfield mask;
+	int mask;
 
 	setFrameBuffer(cam);
 
@@ -1180,7 +1163,7 @@ clearCamera(Camera *cam, RGBA *col, uint32 mode)
 	if(mode & Camera::CLEARZ)
 		mask |= GL_DEPTH_BUFFER_BIT;
 	glDepthMask(GL_TRUE);
-	glClear(mask);
+	glClear((GLbitfield)mask);
 	glDepthMask(rwStateCache.zwrite);
 }
 
@@ -1192,10 +1175,10 @@ showRaster(Raster *raster, uint32 flags)
 	SDL_GL_SwapWindow(glGlobals.window);
 #else
 	if(flags & Raster::FLIPWAITVSYNCH)
-		glfwSwapInterval(1);
+		vglWaitVblankStart(GL_TRUE);
 	else
-		glfwSwapInterval(0);
-	glfwSwapBuffers(glGlobals.window);
+		vglWaitVblankStart(GL_FALSE);
+	vglStopRendering();
 #endif
 }
 
@@ -1215,8 +1198,8 @@ rasterRenderFast(Raster *raster, int32 x, int32 y)
 		case Raster::CAMERA:
 			setActiveTexture(0);
 			glBindTexture(GL_TEXTURE_2D, natdst->texid);
-			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, x, (dst->height-src->height)-y,
-				0, 0, src->width, src->height);
+			/*glCopyTexSubImage2D(GL_TEXTURE_2D, 0, x, (dst->height-src->height)-y,
+				0, 0, src->width, src->height);*/
 			glBindTexture(GL_TEXTURE_2D, boundTexture[0]);
 			return 1;
 		}
@@ -1312,32 +1295,13 @@ closeSDL2(void)
 #else
 
 static void
-addVideoMode(const GLFWvidmode *mode)
+addVideoMode(/*const GLFWvidmode *mode*/)
 {
-	int i;
-
-	for(i = 1; i < glGlobals.numModes; i++){
-		if(glGlobals.modes[i].mode.width == mode->width &&
-		   glGlobals.modes[i].mode.height == mode->height &&
-		   glGlobals.modes[i].mode.redBits == mode->redBits &&
-		   glGlobals.modes[i].mode.greenBits == mode->greenBits &&
-		   glGlobals.modes[i].mode.blueBits == mode->blueBits){
-			// had this mode already, remember highest refresh rate
-			if(mode->refreshRate > glGlobals.modes[i].mode.refreshRate)
-				glGlobals.modes[i].mode.refreshRate = mode->refreshRate;
-			return;
-		}
-	}
-
-	// none found, add
-	glGlobals.modes[glGlobals.numModes].mode = *mode;
-	glGlobals.modes[glGlobals.numModes].flags = VIDEOMODEEXCLUSIVE;
-	glGlobals.numModes++;
 }
 
 static void
 makeVideoModeList(void)
-#ifndef __SWITCH__
+#ifndef PSP2
 {
 	int i, num;
 	const GLFWvidmode *modes;
@@ -1362,29 +1326,8 @@ makeVideoModeList(void)
 	}
 }
 #else
-// stub video modes manually: 1080p and 720p
+// stub video modes manually: 544p
 {
-	glGlobals.modes = rwNewT(DisplayMode, 2, ID_DRIVER | MEMDUR_EVENT);
-
-	glGlobals.modes[0].mode.redBits = 8;
-	glGlobals.modes[0].mode.greenBits = 8;
-	glGlobals.modes[0].mode.blueBits = 8;
-	glGlobals.modes[0].mode.width = 1280;
-	glGlobals.modes[0].mode.height = 720;
-	glGlobals.modes[0].mode.refreshRate = 60;
-	glGlobals.modes[0].depth = 32;
-	glGlobals.modes[0].flags = VIDEOMODEEXCLUSIVE;
-
-	glGlobals.modes[1].mode.redBits = 8;
-	glGlobals.modes[1].mode.greenBits = 8;
-	glGlobals.modes[1].mode.blueBits = 8;
-	glGlobals.modes[1].mode.width = 1920;
-	glGlobals.modes[1].mode.height = 1080;
-	glGlobals.modes[1].mode.refreshRate = 60;
-	glGlobals.modes[1].depth = 32;
-	glGlobals.modes[1].flags = VIDEOMODEEXCLUSIVE;
-
-	glGlobals.numModes = 2;
 }
 #endif
 
@@ -1394,36 +1337,8 @@ openGLFW(EngineOpenParams *openparams)
 	glGlobals.winWidth = openparams->width;
 	glGlobals.winHeight = openparams->height;
 	glGlobals.winTitle = openparams->windowtitle;
-	glGlobals.pWindow = openparams->window;
 
-	/* Init GLFW */
-	if(!glfwInit()){
-		RWERROR((ERR_GENERAL, "glfwInit() failed"));
-		return 0;
-	}
-	glfwWindowHint(GLFW_SAMPLES, 0);
-#ifdef RW_GLES3
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-#elif defined RW_GLES2
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#else
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#endif
-
-	#ifndef __SWITCH__
-	glGlobals.monitor = glfwGetMonitors(&glGlobals.numMonitors)[0];
-	#else
-	glGlobals.monitor = glfwGetPrimaryMonitor();
-	glGlobals.numMonitors = 1;
-	#endif
+	vglInitExtended(0x1400000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
 
 	makeVideoModeList();
 
@@ -1433,7 +1348,6 @@ openGLFW(EngineOpenParams *openparams)
 static int
 closeGLFW(void)
 {
-	glfwTerminate();
 	return 1;
 }
 
@@ -1447,54 +1361,7 @@ static int
 startGLFW(void)
 {
 	GLenum status;
-	GLFWwindow *win;
-	DisplayMode *mode;
 
-	mode = &glGlobals.modes[glGlobals.currentMode];
-
-	glfwSetErrorCallback(glfwerr);
-	glfwWindowHint(GLFW_RED_BITS, mode->mode.redBits);
-	glfwWindowHint(GLFW_GREEN_BITS, mode->mode.greenBits);
-	glfwWindowHint(GLFW_BLUE_BITS, mode->mode.blueBits);
-	glfwWindowHint(GLFW_REFRESH_RATE, mode->mode.refreshRate);
-
-	if(mode->flags & VIDEOMODEEXCLUSIVE)
-		win = glfwCreateWindow(mode->mode.width, mode->mode.height, glGlobals.winTitle, glGlobals.monitor, nil);
-	else
-		win = glfwCreateWindow(glGlobals.winWidth, glGlobals.winHeight, glGlobals.winTitle, nil, nil);
-	if(win == nil){
-		RWERROR((ERR_GENERAL, "glfwCreateWindow() failed"));
-		return 0;
-	}
-	glfwMakeContextCurrent(win);
-
-#ifndef LIBRW_GLAD
-	/* Init GLEW */
-	glewExperimental = GL_TRUE;
-	status = glewInit();
-	if(status != GLEW_OK){
-		RWERROR((ERR_GENERAL, glewGetErrorString(status)));
-		glfwDestroyWindow(win);
-		return 0;
-	}
-	if(!GLEW_VERSION_3_3){
-		RWERROR((ERR_GENERAL, "OpenGL 3.3 needed"));
-		glfwDestroyWindow(win);
-		return 0;
-	}
-#else
-	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-		RWERROR((ERR_GENERAL, "gladLoadGLLoader failed"));
-		glfwDestroyWindow(win);
-		return 0;
-	}
-
-	/*if(!GLAD_GL_VERSION_3_3) {
-		RWERROR((ERR_GENERAL, "OpenGL 3.3 needed"));
-		glfwDestroyWindow(win);
-		return 0;
-	}*/
-#endif
 	printf("version %s\n", glGetString(GL_VERSION));
 
 	printf("GL_VENDOR: %s\n", glGetString(GL_VENDOR));
@@ -1502,8 +1369,6 @@ startGLFW(void)
 	printf("GL_VERSION: %s\n", glGetString(GL_VERSION));
 	printf("GL_EXTENSIONS: %s\n", glGetString(GL_EXTENSIONS));
 
-	glGlobals.window = win;
-	*glGlobals.pWindow = win;
 	glGlobals.presentWidth = 0;
 	glGlobals.presentHeight = 0;
 	return 1;
@@ -1512,7 +1377,6 @@ startGLFW(void)
 static int
 stopGLFW(void)
 {
-	glfwDestroyWindow(glGlobals.window);
 	return 1;
 }
 #endif
@@ -1559,34 +1423,11 @@ initOpenGL(void)
 
 	resetRenderState();
 
-#ifndef RW_GLES2
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-#endif
-
-#ifdef RW_GL_USE_UBOS
-	glGenBuffers(1, &ubo_state);
-	glBindBuffer(GL_UNIFORM_BUFFER, ubo_state);
-	glBindBufferBase(GL_UNIFORM_BUFFER, gl3::findBlock("State"), ubo_state);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformState), &uniformState,
-	             GL_STREAM_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	glGenBuffers(1, &ubo_scene);
-	glBindBuffer(GL_UNIFORM_BUFFER, ubo_scene);
-	glBindBufferBase(GL_UNIFORM_BUFFER, gl3::findBlock("Scene"), ubo_scene);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformScene), &uniformScene,
-	             GL_STREAM_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	glGenBuffers(1, &ubo_object);
-	glBindBuffer(GL_UNIFORM_BUFFER, ubo_object);
-	glBindBufferBase(GL_UNIFORM_BUFFER, gl3::findBlock("Object"), ubo_object);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformObject), &uniformObject,
-	             GL_STREAM_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-#endif
-
+	gVertexBufferPtr = (float*)malloc(0x1800000);
+	gIndicesPtr = (uint16_t*)malloc(0x600000);
+	gVertexBuffer = gVertexBufferPtr;
+	gIndices = gIndicesPtr;
+	
 #ifdef RW_GLES2
 #include "gl2_shaders/default_vs_gl2.inc"
 #include "gl2_shaders/simple_fs_gl2.inc"
@@ -1594,8 +1435,8 @@ initOpenGL(void)
 #include "shaders/default_vs_gl3.inc"
 #include "shaders/simple_fs_gl3.inc"
 #endif
-	const char *vs[] = { shaderDecl, header_vert_src, default_vert_src, nil };
-	const char *fs[] = { shaderDecl, header_frag_src, simple_frag_src, nil };
+	const char *vs[] = { header_vert_src, default_vert_src, nil };
+	const char *fs[] = { header_frag_src, simple_frag_src, nil };
 	defaultShader = Shader::create(vs, fs);
 	assert(defaultShader);
 
@@ -1648,7 +1489,6 @@ deviceSystemSDL2(DeviceReq req, void *arg, int32 n)
 static int
 deviceSystemGLFW(DeviceReq req, void *arg, int32 n)
 {
-	GLFWmonitor **monitors;
 	VideoMode *rwmode;
 
 	switch(req){
@@ -1673,31 +1513,10 @@ deviceSystemGLFW(DeviceReq req, void *arg, int32 n)
 		return glGlobals.currentMonitor;
 
 	case DEVICESETSUBSYSTEM:
-		#ifndef __SWITCH__
-		monitors = glfwGetMonitors(&glGlobals.numMonitors);
-		#endif
-		if(n >= glGlobals.numMonitors)
-			return 0;
-		#ifndef __SWITCH__
-		glGlobals.currentMonitor = n;
-		glGlobals.monitor = monitors[glGlobals.currentMonitor];
-		#else
-		glGlobals.currentMonitor = 0;
-		glGlobals.monitor = glfwGetPrimaryMonitor();
-		#endif
 		return 1;
 
 	case DEVICEGETSUBSSYSTEMINFO:
-		#ifndef __SWITCH__
-		monitors = glfwGetMonitors(&glGlobals.numMonitors);
-		#endif
-		if(n >= glGlobals.numMonitors)
-			return 0;
-		#ifndef __SWITCH__
-		strncpy(((SubSystemInfo*)arg)->name, glfwGetMonitorName(monitors[n]), sizeof(SubSystemInfo::name));
-		#else
-		strncpy(((SubSystemInfo*)arg)->name, "Nintendo Switch Screen Stub", sizeof(SubSystemInfo::name));
-		#endif
+		strncpy(((SubSystemInfo*)arg)->name, "PSVita Screen Stub", sizeof(SubSystemInfo::name));
 		return 1;
 
 
@@ -1715,9 +1534,9 @@ deviceSystemGLFW(DeviceReq req, void *arg, int32 n)
 
 	case DEVICEGETVIDEOMODEINFO:
 		rwmode = (VideoMode*)arg;
-		rwmode->width = glGlobals.modes[n].mode.width;
-		rwmode->height = glGlobals.modes[n].mode.height;
-		rwmode->depth = glGlobals.modes[n].depth;
+		rwmode->width = 960;
+		rwmode->height = 544;
+		rwmode->depth = 32;
 		rwmode->flags = glGlobals.modes[n].flags;
 		return 1;
 

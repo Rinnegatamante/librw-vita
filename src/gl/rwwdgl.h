@@ -32,7 +32,6 @@ struct InstanceDataHeader : rw::InstanceDataHeader
 };
 
 // only RW_OPENGL
-void uploadGeo(Geometry *geo);
 void setAttribPointers(InstanceDataHeader *inst);
 
 void packattrib(uint8 *dst, float32 *src, AttribDesc *a, float32 scale);
