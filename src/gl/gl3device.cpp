@@ -893,8 +893,6 @@ flushCache(void)
 {
 	flushGlRenderState();
 
-#ifndef RW_GL_USE_UBOS
-
 	// TODO: this is probably a stupid way to do it without UBOs
 	if(lastShaderUploaded != currentShader){
 		lastShaderUploaded = currentShader;
@@ -966,48 +964,6 @@ flushCache(void)
 			glUniform4fv(U(u_fogColor), 1, (float*)&uniformState.fogColor);
 			uniformStateDirty[RWGL_FOGCOLOR] = false;
 		}
-
-//		stateDirty = 0;
-//	}
-#else
-	if(objectDirty){
-		glBindBuffer(GL_UNIFORM_BUFFER, ubo_object);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformObject), nil, GL_STREAM_DRAW);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformObject), &uniformObject, GL_STREAM_DRAW);
-		objectDirty = 0;
-	}
-	if(sceneDirty){
-		glBindBuffer(GL_UNIFORM_BUFFER, ubo_scene);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformScene), nil, GL_STREAM_DRAW);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformScene), &uniformScene, GL_STREAM_DRAW);
-		sceneDirty = 0;
-	}
-	if(stateDirty){
-		switch(alphaFunc){
-		case ALPHAALWAYS:
-		default:
-			uniformState.alphaRefLow = -1000.0f;
-			uniformState.alphaRefHigh = 1000.0f;
-			break;
-		case ALPHAGREATEREQUAL:
-			uniformState.alphaRefLow = alphaRef;
-			uniformState.alphaRefHigh = 1000.0f;
-			break;
-		case ALPHALESS:
-			uniformState.alphaRefLow = -1000.0f;
-			uniformState.alphaRefHigh = alphaRef;
-			break;
-		}
-		uniformState.fogDisable = rwStateCache.fogEnable ? 0.0f : 1.0f;
-		uniformState.fogStart = rwStateCache.fogStart;
-		uniformState.fogEnd = rwStateCache.fogEnd;
-		uniformState.fogRange = 1.0f/(rwStateCache.fogStart - rwStateCache.fogEnd);
-		glBindBuffer(GL_UNIFORM_BUFFER, ubo_state);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformState), nil, GL_STREAM_DRAW);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformState), &uniformState, GL_STREAM_DRAW);
-		stateDirty = 0;
-	}
-#endif
 }
 
 static void

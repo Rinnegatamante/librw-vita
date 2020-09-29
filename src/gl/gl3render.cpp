@@ -15,6 +15,11 @@
 
 #include "rwgl3impl.h"
 
+extern uint16_t *gIndices;
+extern float *gVertexBuffer;
+extern uint16_t *gIndicesPtr;
+extern float *gVertexBufferPtr;
+
 namespace rw {
 namespace gl3 {
 
@@ -76,18 +81,20 @@ setAttribPointers(AttribDesc *attribDescs, int32 numAttribs)
 {
 	AttribDesc *a;
 	for(a = attribDescs; a != &attribDescs[numAttribs]; a++){
-		glEnableVertexAttribArray(a->index);
-		glVertexAttribPointer(a->index, a->size, a->type, a->normalized,
-		                      a->stride, (void*)(uint64)a->offset);
+		if (a->type == GL_FLOAT) {
+			vglVertexAttribPointerMapped(a->index, gVertexBuffer + (a->offset * a->size * 4));
+		} else {
+			vglVertexAttribPointerMapped(a->index, gVertexBuffer + (a->offset * a->size));
+		}
 	}
 }
 
 void
 disableAttribPointers(AttribDesc *attribDescs, int32 numAttribs)
 {
-	AttribDesc *a;
+	/*AttribDesc *a;
 	for(a = attribDescs; a != &attribDescs[numAttribs]; a++)
-		glDisableVertexAttribArray(a->index);
+		glDisableVertexAttribArray(a->index);*/
 }
 
 int32
