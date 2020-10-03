@@ -18,6 +18,8 @@
 
 #include "rwgl3impl.h"
 
+extern float *gVertexBuffer;
+
 namespace rw {
 namespace gl3 {
 
@@ -189,17 +191,7 @@ skinInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 			  header->totalNumVertex, a->stride);
 	}
 
-#ifdef RW_GL_USE_VAOS
-	glBindVertexArray(header->vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, header->ibo);
-#endif
-	glBindBuffer(GL_ARRAY_BUFFER, header->vbo);
-	glBufferData(GL_ARRAY_BUFFER, header->totalNumVertex*attribs[0].stride,
-	             header->vertexBuffer, GL_STATIC_DRAW);
-#ifdef RW_GL_USE_VAOS
-	setAttribPointers(header->attribDesc, header->numAttribs);
-	glBindVertexArray(0);
-#endif
+	memcpy_neon(gVertexBuffer, header->vertexBuffer, header->totalNumVertex*attribs[0].stride);
 }
 
 void
@@ -257,13 +249,7 @@ skinRenderCB(Atomic *atomic, InstanceDataHeader *header)
 	setWorldMatrix(atomic->getFrame()->getLTM());
 	lightingCB(atomic);
 
-#ifdef RW_GL_USE_VAOS
-	glBindVertexArray(header->vao);
-#else
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, header->ibo);
-	glBindBuffer(GL_ARRAY_BUFFER, header->vbo);
 	setAttribPointers(header->attribDesc, header->numAttribs);
-#endif
 
 	InstanceData *inst = header->inst;
 	int32 n = header->numMeshes;

@@ -79,14 +79,7 @@ drawInst(InstanceDataHeader *header, InstanceData *inst)
 void
 setAttribPointers(AttribDesc *attribDescs, int32 numAttribs)
 {
-	AttribDesc *a;
-	for(a = attribDescs; a != &attribDescs[numAttribs]; a++){
-		if (a->type == GL_FLOAT) {
-			vglVertexAttribPointerMapped(a->index, gVertexBuffer + (a->offset * a->size * 4));
-		} else {
-			vglVertexAttribPointerMapped(a->index, gVertexBuffer + (a->offset * a->size));
-		}
-	}
+	vglVertexAttribPointerMapped(0, gVertexBuffer);
 }
 
 void
@@ -132,13 +125,7 @@ defaultRenderCB(Atomic *atomic, InstanceDataHeader *header)
 	setWorldMatrix(atomic->getFrame()->getLTM());
 	lightingCB(atomic);
 
-#ifdef RW_GL_USE_VAOS
-	glBindVertexArray(header->vao);
-#else
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, header->ibo);
-	glBindBuffer(GL_ARRAY_BUFFER, header->vbo);
 	setAttribPointers(header->attribDesc, header->numAttribs);
-#endif
 
 	InstanceData *inst = header->inst;
 	int32 n = header->numMeshes;
