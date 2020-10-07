@@ -16,15 +16,12 @@
 #include "rwgl3shader.h"
 
 extern float *gVertexBuffer;
+extern float *gVertexBufferIm2D;
+extern uint16_t *gIndicesIm2D;
 extern uint16_t *gIndices;
 
 namespace rw {
 namespace gl3 {
-
-uint32 im2DVbo, im2DIbo;
-#ifdef RW_GL_USE_VAOS
-uint32 im2DVao;
-#endif
 
 Shader *im2dOverrideShader;
 
@@ -69,21 +66,11 @@ openIm2D(void)
 	const char *fs[] = { shaderDecl, header_frag_src, simple_frag_src, nil };
 	im2dShader = Shader::create(vs, fs);
 	assert(im2dShader);
-
-	glGenBuffers(1, &im2DIbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, im2DIbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, STARTINDICES*2, nil, GL_STREAM_DRAW);
-
-	glGenBuffers(1, &im2DVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, im2DVbo);
-	glBufferData(GL_ARRAY_BUFFER, STARTVERTICES*sizeof(Im2DVertex), nil, GL_STREAM_DRAW);
 }
 
 void
 closeIm2D(void)
 {
-	glDeleteBuffers(1, &im2DIbo);
-	glDeleteBuffers(1, &im2DVbo);
 	im2dShader->destroy();
 	im2dShader = nil;
 }
@@ -116,9 +103,9 @@ im2DRenderPrimitive(PrimitiveType primType, void *vertices, int32 numVertices)
 	Camera *cam;
 	cam = (Camera*)engine->currentCamera;
 
-	memcpy_neon(gVertexBuffer, vertices, numVertices*sizeof(Im2DVertex));
-	vglVertexPointerMapped(gVertexBuffer);
-	gVertexBuffer += numVertices*(sizeof(Im2DVertex)/sizeof(float));
+	memcpy_neon(gVertexBufferIm2D, vertices, numVertices*sizeof(Im2DVertex));
+	vglVertexPointerMapped(gVertexBufferIm2D);
+	gVertexBufferIm2D += numVertices*(sizeof(Im2DVertex)/sizeof(float));
 	
 	xform[0] = 2.0f/cam->frameBuffer->width;
 	xform[1] = -2.0f/cam->frameBuffer->height;
@@ -147,12 +134,12 @@ im2DRenderIndexedPrimitive(PrimitiveType primType,
 	cam = (Camera*)engine->currentCamera;
 
 	memcpy_neon(gIndices, indices, numIndices * 2);
-	vglIndexPointerMapped(gIndices);
-	gIndices += numIndices;
+	vglIndexPointerMapped(gIndicesIm2D);
+	gIndicesIm2D += numIndices;
 	
 	memcpy_neon(gVertexBuffer, vertices, numVertices*(sizeof(Im2DVertex)/sizeof(float)));
-	vglVertexPointerMapped(gVertexBuffer);
-	gVertexBuffer += numVertices*(sizeof(Im2DVertex)/sizeof(float));
+	vglVertexPointerMapped(gVertexBufferIm2D);
+	gVertexBufferIm2D += numVertices*(sizeof(Im2DVertex)/sizeof(float));
 
 	xform[0] = 2.0f/cam->frameBuffer->width;
 	xform[1] = -2.0f/cam->frameBuffer->height;
@@ -226,9 +213,9 @@ im3DTransform(void *vertices, int32 numVertices, Matrix *world, uint32 flags)
 	if((flags & im3d::VERTEXUV) == 0)
 		SetRenderStatePtr(TEXTURERASTER, nil);
 
-	memcpy_neon(gVertexBuffer, vertices, numVertices*(sizeof(Im3DVertex)/sizeof(float)));
-	vglVertexPointerMapped(gVertexBuffer);
-	gVertexBuffer += numVertices*(sizeof(Im2DVertex)/sizeof(float));
+	memcpy_neon(gVertexBufferIm2D, vertices, numVertices*(sizeof(Im3DVertex)/sizeof(float)));
+	vglVertexPointerMapped(gVertexBufferIm2D);
+	gVertexBufferIm2D += numVertices*(sizeof(Im2DVertex)/sizeof(float));
 
 #ifndef RW_GL_USE_VAOS
 	setAttribPointers(im3dattribDesc, 3);
@@ -246,9 +233,9 @@ im3DRenderPrimitive(PrimitiveType primType)
 void
 im3DRenderIndexedPrimitive(PrimitiveType primType, void *indices, int32 numIndices)
 {
-	memcpy_neon(gIndices, indices, numIndices * 2);
-	vglIndexPointerMapped(gIndices);
-	gIndices += numIndices;
+	memcpy_neon(gIndicesIm2D, indices, numIndices * 2);
+	vglIndexPointerMapped(gIndicesIm2D);
+	gIndicesIm2D += numIndices;
 
 	flushCache();
 	vglDrawObjects(primTypeMap[primType], numIndices, GL_FALSE);

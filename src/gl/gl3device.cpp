@@ -22,6 +22,9 @@ extern float *gVertexBuffer;
 extern uint16_t *gIndicesPtr;
 extern float *gVertexBufferPtr;
 
+float *gVertexBufferIm2D;
+uint16_t *gIndicesIm2D;
+
 namespace rw {
 namespace gl3 {
 #ifndef LIBRW_SDL2
@@ -1382,7 +1385,9 @@ initOpenGL(void)
 	gVertexBufferPtr = (float*)malloc(0x1800000);
 	gIndicesPtr = (uint16_t*)malloc(0x600000);
 	gVertexBuffer = gVertexBufferPtr;
+	gVertexBufferIm2D = gVertexBufferPtr + 0xC00000;
 	gIndices = gIndicesPtr;
+	gIndicesIm2D = gIndicesPtr + 0x300000;
 	
 #ifdef RW_GLES2
 #include "gl2_shaders/default_vs_gl2.inc"
