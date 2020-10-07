@@ -27,4 +27,4 @@ install: $(TARGET).a
 	@mkdir -p $(VITASDK)/$(PREFIX)/lib/
 	cp $(TARGET).a $(VITASDK)/$(PREFIX)/lib/
 	@mkdir -p $(VITASDK)/$(PREFIX)/include/
-	cp source/vitaGL.h $(VITASDK)/$(PREFIX)/include/
+	cp src/*.h $(VITASDK)/$(PREFIX)/include/
