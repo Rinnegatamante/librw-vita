@@ -12,6 +12,9 @@
 #include "rwgl3.h"
 #include "rwgl3shader.h"
 
+extern float *gVertexBuffer;
+extern uint16_t *gIndices;
+
 namespace rw {
 namespace gl3 {
 
@@ -85,15 +88,10 @@ instanceMesh(rw::ObjPipeline *rwpipe, Geometry *geo)
 	header->attribDesc = nil;
 	header->ibo = 0;
 	header->vbo = 0;
-
-#ifdef RW_GL_USE_VAOS
-	glGenVertexArrays(1, &header->vao);
-	glBindVertexArray(header->vao);
-#endif
-	glGenBuffers(1, &header->ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, header->ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, header->totalNumIndex*2,
-			header->indexBuffer, GL_STATIC_DRAW);
+	
+	memcpy_neon(gIndices, header->indexBuffer, header->totalNumIndex*2);
+	vglIndexPointerMapped(gIndices);
+	gIndices += header->totalNumIndex;
 
 	return header;
 }
@@ -293,10 +291,10 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 				header->totalNumVertex, a->stride);
 		}
 	}
-
-	glBindBuffer(GL_ARRAY_BUFFER, header->vbo);
-	glBufferData(GL_ARRAY_BUFFER, header->totalNumVertex*attribs[0].stride,
-	             header->vertexBuffer, GL_STATIC_DRAW);
+	
+	memcpy_neon(gVertexBuffer, header->vertexBuffer, header->totalNumVertex*attribs[0].stride);
+	vglVertexPointerMapped(gVertexBuffer);
+	gVertexBuffer += (header->totalNumVertex*attribs[0].stride) / sizeof(float);
 }
 
 void
