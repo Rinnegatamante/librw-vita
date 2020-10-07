@@ -11,6 +11,8 @@
 #include "rwobjects.h"
 #include "rwengine.h"
 
+#include <vitaGL.h>
+
 #define PLUGIN_ID ID_GEOMETRY
 
 namespace rw {
@@ -616,7 +618,7 @@ Geometry::correctTristripWinding(void)
 	rwFree(header);
 	// Now allocate indices and copy them
 	this->allocateMeshes(newhead->numMeshes, newhead->totalIndices, 0);
-	memcpy(this->meshHeader->getMeshes()->indices, indices, this->meshHeader->totalIndices*2);
+	memcpy_neon(this->meshHeader->getMeshes()->indices, indices, this->meshHeader->totalIndices*2);
 	rwFree(indices);
 }
 
@@ -671,7 +673,7 @@ Geometry::removeUnusedMaterials(void)
 	for(uint32 i = 0; i < mh->numMeshes; i++){
 		if(m[i].numIndices <= 0)
 			continue;
-		memcpy(newm->indices, m[i].indices,
+		memcpy_neon(newm->indices, m[i].indices,
 		       m[i].numIndices*sizeof(*m[i].indices));
 		newm++;
 	}

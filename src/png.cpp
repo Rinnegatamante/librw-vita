@@ -12,6 +12,8 @@
 
 #include "lodepng/lodepng.h"
 
+#include <vitaGL.h>
+
 #ifdef _WIN32
 /* srsly? */
 #define strdup _strdup
@@ -46,20 +48,20 @@ readPNG(const char *filename)
 	if(state.info_raw.bitdepth == 4 && state.info_raw.colortype == LCT_PALETTE){
 		image = Image::create(w, h, 4);
 		image->allocate();
-		memcpy(image->palette, state.info_raw.palette, state.info_raw.palettesize*4);
+		memcpy_neon(image->palette, state.info_raw.palette, state.info_raw.palettesize*4);
 		expandPal4_BE(image->pixels, image->stride, raw, w/2, w, h);
 	}else if(state.info_raw.bitdepth == 8){
 		switch(state.info_raw.colortype){
 		case LCT_PALETTE:
 			image = Image::create(w, h, state.info_raw.palettesize <= 16 ? 4 : 8);
 			image->allocate();
-			memcpy(image->palette, state.info_raw.palette, state.info_raw.palettesize*4);
-			memcpy(image->pixels, raw, w*h);
+			memcpy_neon(image->palette, state.info_raw.palette, state.info_raw.palettesize*4);
+			memcpy_neon(image->pixels, raw, w*h);
 			break;
 		case LCT_RGB:
 			image = Image::create(w, h, 24);
 			image->allocate();
-			memcpy(image->pixels, raw, w*h*3);
+			memcpy_neon(image->pixels, raw, w*h*3);
 			break;
 		default:
 			// Second try: just load as 32 bit
@@ -74,7 +76,7 @@ readPNG(const char *filename)
 		case LCT_RGBA:
 			image = Image::create(w, h, 32);
 			image->allocate();
-			memcpy(image->pixels, raw, w*h*4);
+			memcpy_neon(image->pixels, raw, w*h*4);
 			break;
 		}
 	}

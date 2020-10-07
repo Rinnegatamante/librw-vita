@@ -375,7 +375,7 @@ copyMaterialMatFX(void *dst, void *src, int32 offset, int32)
 		return dst;
 	MatFX *dstfx = rwNewT(MatFX, 1, MEMDUR_EVENT | ID_MATFX);
 	*PLUGINOFFSET(MatFX*, dst, offset) = dstfx;
-	memcpy(dstfx, srcfx, sizeof(MatFX));
+	memcpy_neon(dstfx, srcfx, sizeof(MatFX));
 	for(int i = 0; i < 2; i++)
 		switch(dstfx->fx[i].type){
 		case MatFX::BUMPMAP:

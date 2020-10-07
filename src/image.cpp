@@ -17,6 +17,8 @@
 
 #define PLUGIN_ID ID_IMAGE
 
+#include <vitaGL.h>
+
 namespace rw {
 
 int32 Image::numAllocated;
@@ -476,7 +478,7 @@ Image::palettize(int32 depth)
 	this->palette = nil;
 	this->setPixels(newpixels);
 	this->allocate();
-	memcpy(this->palette, colors, 4*(1<<depth));
+	memcpy_neon(this->palette, colors, 4*(1<<depth));
 
 	quant.destroy();
 }
@@ -681,7 +683,7 @@ rwstrdup(const char *s)
 	size_t len = strlen(s)+1;
 	t = (char*)rwMalloc(len, MEMDUR_EVENT);
 	if(t)
-		memcpy(t, s, len);
+		memcpy_neon(t, s, len);
 	return t;
 }
 

@@ -800,7 +800,7 @@ setLights(WorldLights *lightData)
 		l = lightData->directionals[i];
 		uniformObject.lightParams[n].type = 1.0f;
 		uniformObject.lightColor[n] = l->color;
-		memcpy(&uniformObject.lightDirection[n], &l->getFrame()->getLTM()->at, sizeof(V3d));
+		memcpy_neon(&uniformObject.lightDirection[n], &l->getFrame()->getLTM()->at, sizeof(V3d));
 		bits |= VSLIGHT_POINT;
 		n++;
 		if(n >= MAX_LIGHTS)
@@ -815,7 +815,7 @@ setLights(WorldLights *lightData)
 			uniformObject.lightParams[n].type = 2.0f;
 			uniformObject.lightParams[n].radius = l->radius;
 			uniformObject.lightColor[n] = l->color;
-			memcpy(&uniformObject.lightPosition[n], &l->getFrame()->getLTM()->pos, sizeof(V3d));
+			memcpy_neon(&uniformObject.lightPosition[n], &l->getFrame()->getLTM()->pos, sizeof(V3d));
 			bits |= VSLIGHT_POINT;
 			n++;
 			if(n >= MAX_LIGHTS)
@@ -827,8 +827,8 @@ setLights(WorldLights *lightData)
 			uniformObject.lightParams[n].minusCosAngle = l->minusCosAngle;
 			uniformObject.lightParams[n].radius = l->radius;
 			uniformObject.lightColor[n] = l->color;
-			memcpy(&uniformObject.lightPosition[n], &l->getFrame()->getLTM()->pos, sizeof(V3d));
-			memcpy(&uniformObject.lightDirection[n], &l->getFrame()->getLTM()->at, sizeof(V3d));
+			memcpy_neon(&uniformObject.lightPosition[n], &l->getFrame()->getLTM()->pos, sizeof(V3d));
+			memcpy_neon(&uniformObject.lightDirection[n], &l->getFrame()->getLTM()->at, sizeof(V3d));
 			// lower bound of falloff
 			if(l->getType() == Light::SOFTSPOT)
 				uniformObject.lightParams[n].hardSpot = 0.0f;
@@ -851,14 +851,14 @@ out:
 void
 setProjectionMatrix(float32 *mat)
 {
-	memcpy(&uniformScene.proj, mat, 64);
+	memcpy_neon(&uniformScene.proj, mat, 64);
 	sceneDirty = 1;
 }
 
 void
 setViewMatrix(float32 *mat)
 {
-	memcpy(&uniformScene.view, mat, 64);
+	memcpy_neon(&uniformScene.view, mat, 64);
 	sceneDirty = 1;
 }
 
@@ -1035,7 +1035,7 @@ beginUpdate(Camera *cam)
 	view[13] =  inv.pos.y;
 	view[14] =  inv.pos.z;
 	view[15] =  1.0f;
-	memcpy(&cam->devView, &view, sizeof(RawMatrix));
+	memcpy_neon(&cam->devView, &view, sizeof(RawMatrix));
 	setViewMatrix(view);
 
 	// Projection Matrix
@@ -1070,7 +1070,7 @@ beginUpdate(Camera *cam)
 		proj[14] = 2.0f*invz;
 		proj[15] = 1.0f;
 	}
-	memcpy(&cam->devProj, &proj, sizeof(RawMatrix));
+	memcpy_neon(&cam->devProj, &proj, sizeof(RawMatrix));
 	setProjectionMatrix(proj);
 
 	if(rwStateCache.fogStart != cam->fogPlane){

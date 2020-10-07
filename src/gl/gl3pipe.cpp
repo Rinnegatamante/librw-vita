@@ -30,11 +30,7 @@ freeInstanceData(Geometry *geometry)
 		return;
 	InstanceDataHeader *header = (InstanceDataHeader*)geometry->instData;
 	geometry->instData = nil;
-	glDeleteBuffers(1, &header->ibo);
-	glDeleteBuffers(1, &header->vbo);
-#ifdef RW_GL_USE_VAOS
-	glDeleteBuffers(1, &header->vao);
-#endif
+
 	rwFree(header->indexBuffer);
 	rwFree(header->vertexBuffer);
 	rwFree(header->attribDesc);
@@ -76,7 +72,7 @@ instanceMesh(rw::ObjPipeline *rwpipe, Geometry *geo)
 		inst->vertexAlpha = 0;
 		inst->program = 0;
 		inst->offset = offset;
-		memcpy((uint8*)header->indexBuffer + inst->offset,
+		memcpy_neon((uint8*)header->indexBuffer + inst->offset,
 		       mesh->indices, inst->numIndex*2);
 		offset += inst->numIndex*2;
 		mesh++;
@@ -228,7 +224,7 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 		for(a = tmpAttribs; a != &tmpAttribs[header->numAttribs]; a++)
 			a->stride = stride;
 		header->attribDesc = rwNewT(AttribDesc, header->numAttribs, MEMDUR_EVENT | ID_GEOMETRY);
-		memcpy(header->attribDesc, tmpAttribs,
+		memcpy_neon(header->attribDesc, tmpAttribs,
 		       header->numAttribs*sizeof(AttribDesc));
 
 		//

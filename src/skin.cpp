@@ -64,11 +64,11 @@ copySkin(void *dst, void *src, int32 offset, int32)
 	assert(0 && "can't copy skin yet");
 	dstskin->init(srcskin->numBones, srcskin->numUsedBones,
 	              geometry->numVertices);
-	memcpy(dstskin->usedBones, srcskin->usedBones, srcskin->numUsedBones);
-	memcpy(dstskin->inverseMatrices, srcskin->inverseMatrices,
+	memcpy_neon(dstskin->usedBones, srcskin->usedBones, srcskin->numUsedBones);
+	memcpy_neon(dstskin->inverseMatrices, srcskin->inverseMatrices,
 	       srcskin->numBones*64);
-	memcpy(dstskin->indices, srcskin->indices, geometry->numVertices*4);
-	memcpy(dstskin->weights, srcskin->weights, geometry->numVertices*16);
+	memcpy_neon(dstskin->indices, srcskin->indices, geometry->numVertices*4);
+	memcpy_neon(dstskin->weights, srcskin->weights, geometry->numVertices*16);
 	return dst;
 }
 

@@ -19,6 +19,8 @@
 #include "rwobjects.h"
 #include "rwengine.h"
 
+#include <vitaGL.h>
+
 namespace rw {
 
 #define PLUGIN_ID 0
@@ -759,7 +761,7 @@ Stream::write32(const void *data, uint32 length)
 	int32 n, len;
 	for(len = length >>= 2; len > 0; len -= 256){
 		n = len < 256 ? len : 256;
-		memcpy(buf, src, n*4);
+		memcpy_neon(buf, src, n*4);
 		memLittle16(buf, n*4);
 		write8(buf, n*4);
 		src += n*4;
@@ -779,7 +781,7 @@ Stream::write16(const void *data, uint32 length)
 	int32 n, len;
 	for(len = length >>= 1; len > 0; len -= 256){
 		n = len < 256 ? len : 256;
-		memcpy(buf, src, n*2);
+		memcpy_neon(buf, src, n*2);
 		memLittle16(buf, n*2);
 		write8(buf, n*2);
 		src += n*2;
@@ -924,7 +926,7 @@ StreamMemory::write8(const void *data, uint32 len)
 			l = this->capacity-this->position;
 		this->length = this->position+l;
 	}
-	memcpy(&this->data[this->position], data, l);
+	memcpy_neon(&this->data[this->position], data, l);
 	this->position += l;
 	if(len != l)
 		this->position = S_EOF;
@@ -939,7 +941,7 @@ StreamMemory::read8(void *data, uint32 len)
 	uint32 l = len;
 	if(this->position+l > this->length)
 		l = this->length-this->position;
-	memcpy(data, &this->data[this->position], l);
+	memcpy_neon(data, &this->data[this->position], l);
 	this->position += l;
 	if(len != l)
 		this->position = S_EOF;
