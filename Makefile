@@ -27,4 +27,15 @@ install: $(TARGET).a
 	@mkdir -p $(VITASDK)/$(PREFIX)/lib/
 	cp $(TARGET).a $(VITASDK)/$(PREFIX)/lib/
 	@mkdir -p $(VITASDK)/$(PREFIX)/include/
-	cp src/*.h $(VITASDK)/$(PREFIX)/include/
+	cp *.h $(VITASDK)/$(PREFIX)/include/
+	@mkdir -p $(VITASDK)/$(PREFIX)/include/src
+	cp src/*.h $(VITASDK)/$(PREFIX)/include/src/
+	cp src/base.err $(VITASDK)/$(PREFIX)/include/src/
+	@mkdir -p $(VITASDK)/$(PREFIX)/include/src/d3d
+	@mkdir -p $(VITASDK)/$(PREFIX)/include/src/gl
+	@mkdir -p $(VITASDK)/$(PREFIX)/include/src/lodepng
+	@mkdir -p $(VITASDK)/$(PREFIX)/include/src/ps2
+	cp src/d3d/*.h $(VITASDK)/$(PREFIX)/include/src/d3d/
+	cp src/gl/*.h $(VITASDK)/$(PREFIX)/include/src/gl/
+	cp src/lodepng/lodepng.h $(VITASDK)/$(PREFIX)/include/src/lodepng/
+	cp src/ps2/*.h $(VITASDK)/$(PREFIX)/include/src/ps2/
