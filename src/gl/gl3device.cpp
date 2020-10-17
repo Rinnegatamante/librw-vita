@@ -1138,6 +1138,11 @@ showRaster(Raster *raster, uint32 flags)
 	else
 		vglWaitVblankStart(GL_FALSE);
 	vglStopRendering();
+	vglStartRendering();
+	gVertexBuffer = gVertexBufferPtr;
+	gVertexBufferIm2D = gVertexBufferPtr + 0xC00000;
+	gIndices = gIndicesPtr;
+	gIndicesIm2D = gIndicesPtr + 0x300000;
 #endif
 }
 
@@ -1298,6 +1303,8 @@ openGLFW(EngineOpenParams *openparams)
 	glGlobals.winTitle = openparams->windowtitle;
 
 	vglInitExtended(0x1400000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
+	vglUseVram(GL_TRUE);
+	vglStartRendering();
 
 	makeVideoModeList();
 
@@ -1488,9 +1495,6 @@ deviceSystemGLFW(DeviceReq req, void *arg, int32 n)
 		return 0;
 
 	case DEVICESETVIDEOMODE:
-		if(n >= glGlobals.numModes)
-			return 0;
-		glGlobals.currentMode = n;
 		return 1;
 
 	case DEVICEGETVIDEOMODEINFO:
@@ -1498,7 +1502,7 @@ deviceSystemGLFW(DeviceReq req, void *arg, int32 n)
 		rwmode->width = 960;
 		rwmode->height = 544;
 		rwmode->depth = 32;
-		rwmode->flags = glGlobals.modes[n].flags;
+		rwmode->flags = VIDEOMODEEXCLUSIVE;
 		return 1;
 
 	default:

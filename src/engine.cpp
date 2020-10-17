@@ -17,6 +17,7 @@
 #include "gl/rwgl3.h"
 #include "gl/rwwdgl.h"
 
+
 #define PLUGIN_ID 0
 
 // on windows

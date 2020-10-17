@@ -22,11 +22,11 @@ const char *matfx_env_vert_src =
 "	float4 out gl_Position : POSITION\n"
 ") {\n"
 "	float4 Vertex = mul(u_world, float4(in_pos, 1.0));\n"
-"	gl_Position = mul(u_proj, mul(u_view, Vertex));\n"
+"	gl_Position = mul(u_proj * u_view, Vertex);\n"
 "	float3 Normal = mul(float3x3(u_world), in_normal);\n"
 
 "	v_tex0 = in_tex0;\n"
-"	v_tex1 = (u_texMatrix * float4(Normal, 1.0)).xy;\n"
+"	v_tex1 = (mul(u_texMatrix, float4(Normal, 1.0))).xy;\n"
 
 "	v_color = in_color;\n"
 "	v_color.rgb += u_ambLight.rgb*surfAmbient;\n"
@@ -58,10 +58,10 @@ const char *matfx_env_frag_src =
 "	float2 v_tex0 : TEXCOORD0,\n"
 "	float2 v_tex1 : TEXCOORD1,\n"
 "	float v_fog : FOG,\n"
-"	uniform float2 u_alpharef,\n"
+"	uniform float4 u_fogColor,\n"
+"	uniform float2 u_alphaRef,\n"
 "	uniform float4 u_colorClamp,\n"
 "	uniform float2 u_fxparams,\n"
-"	uniform float4 u_fogColor,\n"
 "	uniform sampler2D tex0 : TEXUNIT0,\n"
 "	uniform sampler2D tex1 : TEXUNIT1\n"
 ") {\n"
@@ -69,7 +69,7 @@ const char *matfx_env_frag_src =
 "	float4 envColor = max(pass1, u_colorClamp);\n"
 "	pass1 *= tex2D(tex0, float2(v_tex0.x, 1.0-v_tex0.y));\n"
 
-"	vec4 pass2 = envColor*shininess*tex2D(tex1, float2(v_tex1.x, 1.0-v_tex1.y));\n"
+"	float4 pass2 = envColor*shininess*tex2D(tex1, float2(v_tex1.x, 1.0-v_tex1.y));\n"
 
 "	pass1.rgb = lerp(u_fogColor.rgb, pass1.rgb, v_fog);\n"
 "	pass2.rgb = lerp(float3(0.0, 0.0, 0.0), pass2.rgb, v_fog);\n"
