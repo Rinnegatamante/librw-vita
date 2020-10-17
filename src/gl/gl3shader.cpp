@@ -98,6 +98,8 @@ printShaderSource(const char **src)
 	}
 }
 
+char shader_source_buffer[16 * 1024];
+
 static int
 compileshader(GLenum type, const char **src, GLuint *shader)
 {
@@ -105,11 +107,17 @@ compileshader(GLenum type, const char **src, GLuint *shader)
 	GLint shdr, success;
 	GLint len;
 	char *log;
-
-	for(n = 0; src[n]; n++);
-
+	
+	shader_source_buffer[0] = 0;
+	
+	for(n = 0; src[n]; n++) {
+		sprintf(shader_source_buffer, "%s%s", shader_source_buffer, src[n]);
+	}
+	
+	const char *_src = (const char*)shader_source_buffer;
+	
 	shdr = glCreateShader(type);
-	glShaderSource(shdr, n, src, nil);
+	glShaderSource(shdr, 1, &_src, nil);
 	glCompileShader(shdr);
 	glGetShaderiv(shdr, GL_COMPILE_STATUS, &success);
 	if(!success){
