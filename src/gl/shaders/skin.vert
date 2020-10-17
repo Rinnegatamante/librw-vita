@@ -16,7 +16,7 @@ void main(
 	uniform float4 u_lightParams[MAX_LIGHTS],
 	uniform float4 u_lightDirection[MAX_LIGHTS],
 	uniform float4 u_lightColor[MAX_LIGHTS],
-	uniform float4x3 u_boneMatrices[64],
+	uniform float4x4 u_boneMatrices[64],
 	float4 out v_color : COLOR0,
 	float2 out v_tex0 : TEXCOORD0,
 	float out v_fog : FOG,
@@ -29,9 +29,9 @@ void main(
 		SkinNormal += (float3x3(u_boneMatrices[int(in_indices[i])]) * in_normal) * in_weights[i];
 	}
 
-	float4 Vertex = u_world * float4(SkinVertex, 1.0);
-	gl_Position = u_proj * u_view * Vertex;
-	float3 Normal = mat3(u_world) * SkinNormal;
+	float4 Vertex = mul(u_world, float4(SkinVertex, 1.0));
+	gl_Position = u_proj * mul(u_view, Vertex);
+	float3 Normal = mul(float3x3(u_world), SkinNormal);
 
 	v_tex0 = in_tex0;
 

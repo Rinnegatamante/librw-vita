@@ -11,4 +11,6 @@ const char *simple_frag_src =
 "	DoAlphaTest(color.a, u_alphaRef);\n"
 "	\n"
 "	return color;\n"
-"}\n";
+"}\n"
+
+;

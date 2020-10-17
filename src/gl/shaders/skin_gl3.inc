@@ -17,7 +17,7 @@ const char *skin_vert_src =
 "	uniform float4 u_lightParams[MAX_LIGHTS],\n"
 "	uniform float4 u_lightDirection[MAX_LIGHTS],\n"
 "	uniform float4 u_lightColor[MAX_LIGHTS],\n"
-"	uniform float4x3 u_boneMatrices[64],\n"
+"	uniform float4x4 u_boneMatrices[64],\n"
 "	float4 out v_color : COLOR0,\n"
 "	float2 out v_tex0 : TEXCOORD0,\n"
 "	float out v_fog : FOG,\n"
@@ -30,9 +30,9 @@ const char *skin_vert_src =
 "		SkinNormal += (float3x3(u_boneMatrices[int(in_indices[i])]) * in_normal) * in_weights[i];\n"
 "	}\n"
 
-"	float4 Vertex = u_world * float4(SkinVertex, 1.0);\n"
-"	gl_Position = u_proj * u_view * Vertex;\n"
-"	float3 Normal = mat3(u_world) * SkinNormal;\n"
+"	float4 Vertex = mul(u_world, float4(SkinVertex, 1.0));\n"
+"	gl_Position = u_proj * mul(u_view, Vertex);\n"
+"	float3 Normal = mul(float3x3(u_world), SkinNormal);\n"
 
 "	v_tex0 = in_tex0;\n"
 
