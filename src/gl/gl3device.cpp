@@ -1468,10 +1468,10 @@ deviceSystemGLFW(DeviceReq req, void *arg, int32 n)
 
 
 	case DEVICEGETNUMSUBSYSTEMS:
-		return glGlobals.numMonitors;
+		return 1;
 
 	case DEVICEGETCURRENTSUBSYSTEM:
-		return glGlobals.currentMonitor;
+		return 0;
 
 	case DEVICESETSUBSYSTEM:
 		return 1;
@@ -1482,10 +1482,10 @@ deviceSystemGLFW(DeviceReq req, void *arg, int32 n)
 
 
 	case DEVICEGETNUMVIDEOMODES:
-		return glGlobals.numModes;
+		return 1;
 
 	case DEVICEGETCURRENTVIDEOMODE:
-		return glGlobals.currentMode;
+		return 0;
 
 	case DEVICESETVIDEOMODE:
 		if(n >= glGlobals.numModes)
