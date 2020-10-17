@@ -172,8 +172,8 @@ matfxOpen(void *o, int32, int32)
 #else
 #include "shaders/matfx_gl3.inc"
 #endif
-	const char *vs[] = { shaderDecl, header_vert_src, matfx_env_vert_src, nil };
-	const char *fs[] = { shaderDecl, header_frag_src, matfx_env_frag_src, nil };
+	const char *vs[] = { header_vert_src, matfx_env_vert_src, nil };
+	const char *fs[] = { header_frag_src, matfx_env_frag_src, nil };
 	envShader = Shader::create(vs, fs);
 	assert(envShader);
 
