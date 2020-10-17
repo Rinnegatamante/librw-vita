@@ -61,6 +61,7 @@ const char *matfx_env_frag_src =
 "	uniform float2 u_alpharef,\n"
 "	uniform float4 u_colorClamp,\n"
 "	uniform float2 u_fxparams,\n"
+"	uniform float4 u_fogColor,\n"
 "	uniform sampler2D tex0 : TEXUNIT0,\n"
 "	uniform sampler2D tex1 : TEXUNIT1\n"
 ") {\n"

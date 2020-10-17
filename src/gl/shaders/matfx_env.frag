@@ -9,6 +9,7 @@ float4 main(
 	uniform float2 u_alpharef,
 	uniform float4 u_colorClamp,
 	uniform float2 u_fxparams,
+	uniform float4 u_fogColor,
 	uniform sampler2D tex0 : TEXUNIT0,
 	uniform sampler2D tex1 : TEXUNIT1
 ) {

@@ -4,6 +4,7 @@ const char *simple_frag_src =
 "	float2 v_tex0 : TEXCOORD0,\n"
 "	float v_fog : FOG,\n"
 "	uniform float2 u_alpharef,\n"
+"	uniform float4 u_fogColor,\n"
 "	uniform sampler2D tex0\n"
 ") {\n"
 "	float4 color = v_color*tex2D(tex0, float2(v_tex0.x, 1.0-v_tex0.y));\n"
