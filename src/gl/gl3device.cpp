@@ -1106,6 +1106,22 @@ beginUpdate(Camera *cam)
 	}
 }
 
+void log2file(const char *format, ...) {
+	__gnuc_va_list arg;
+	int done;
+	va_start(arg, format);
+	char msg[512];
+	done = vsprintf(msg, format, arg);
+	va_end(arg);
+	int i;
+	sprintf(msg, "%s\n", msg);
+	FILE *log = fopen("ux0:/data/librw.log", "a+");
+	if (log != NULL) {
+		fwrite(msg, 1, strlen(msg), log);
+		fclose(log);
+	}
+}
+
 static void
 clearCamera(Camera *cam, RGBA *col, uint32 mode)
 {
@@ -1144,6 +1160,8 @@ showRaster(Raster *raster, uint32 flags)
 	gIndices = gIndicesPtr;
 	gIndicesIm2D = gIndicesPtr + 0x300000;
 #endif
+	log2file("showRaster called");
+	
 }
 
 static bool32
