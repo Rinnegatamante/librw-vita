@@ -217,7 +217,7 @@ im3DTransform(void *vertices, int32 numVertices, Matrix *world, uint32 flags)
 
 	memcpy_neon(gVertexBufferIm2D, vertices, numVertices*sizeof(Im3DVertex));
 	vglVertexAttribPointerMapped(0, gVertexBufferIm2D);
-	gVertexBufferIm2D += numVertices*(sizeof(Im2DVertex)/sizeof(float));
+	gVertexBufferIm2D += numVertices*(sizeof(Im3DVertex)/sizeof(float));
 
 #ifndef RW_GL_USE_VAOS
 	//setAttribPointers(im3dattribDesc, 3);
