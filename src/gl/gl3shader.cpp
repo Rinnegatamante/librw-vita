@@ -146,16 +146,6 @@ linkprogram(GLint vs, GLint fs, GLuint *program, bool is_2d)
 	
 	glAttachShader(prog, vs);
 	glAttachShader(prog, fs);
-
-#ifdef RW_GLES2
-	// TODO: perhaps just do this always and get rid of the layout stuff?
-	glBindAttribLocation(prog, ATTRIB_POS, "in_pos");
-	glBindAttribLocation(prog, ATTRIB_NORMAL, "in_normal");
-	glBindAttribLocation(prog, ATTRIB_COLOR, "in_color");
-	glBindAttribLocation(prog, ATTRIB_TEXCOORDS0, "in_tex0");
-	glBindAttribLocation(prog, ATTRIB_WEIGHTS, "in_weights");
-	glBindAttribLocation(prog, ATTRIB_INDICES, "in_indices");
-#endif
 	
 	int stride = 0;
 	int pos_size = is_2d ? 4 : 3;

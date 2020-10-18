@@ -119,9 +119,9 @@ im2DRenderPrimitive(PrimitiveType primType, void *vertices, int32 numVertices)
 	else
 		im2dShader->use();
 
-	glUniform4fv(currentShader->uniformLocations[u_xform], 1, xform);
-
 	flushCache();
+	glUniform4fv(currentShader->uniformLocations[u_xform], 1, xform);
+	
 	vglDrawObjects(primTypeMap[primType], numVertices, GL_FALSE);
 	
 }
@@ -153,9 +153,9 @@ im2DRenderIndexedPrimitive(PrimitiveType primType,
 	else
 		im2dShader->use();
 
-	glUniform4fv(currentShader->uniformLocations[u_xform], 1, xform);
-
 	flushCache();
+	glUniform4fv(currentShader->uniformLocations[u_xform], 1, xform);
+		
 	vglDrawObjects(primTypeMap[primType], numIndices, GL_FALSE);
 }
 
