@@ -898,7 +898,7 @@ flushCache(void)
 	flushGlRenderState();
 
 	// TODO: this is probably a stupid way to do it without UBOs
-	if(lastShaderUploaded != currentShader){
+	/*if(lastShaderUploaded != currentShader){
 		lastShaderUploaded = currentShader;
 		objectDirty = 1;
 		sceneDirty = 1;
@@ -907,23 +907,23 @@ flushCache(void)
 		int i;
 		for(i = 0; i < RWGL_NUM_STATES; i++)
 			uniformStateDirty[i] = true;
-	}
+	}*/
 
-	if(sceneDirty){
+	//if(sceneDirty){
 		glUniformMatrix4fv(U(u_proj), 1, 0, uniformScene.proj);
 		glUniformMatrix4fv(U(u_view), 1, 0, uniformScene.view);
-		sceneDirty = 0;
-	}
+	//	sceneDirty = 0;
+	//}
 
-	if(objectDirty){
+	//if(objectDirty){
 		glUniformMatrix4fv(U(u_world), 1, 0, (float*)&uniformObject.world);
 		glUniform4fv(U(u_ambLight), 1, (float*)&uniformObject.ambLight);
 		glUniform4fv(U(u_lightParams), MAX_LIGHTS, (float*)uniformObject.lightParams);
 		glUniform4fv(U(u_lightPosition), MAX_LIGHTS, (float*)uniformObject.lightPosition);
 		glUniform4fv(U(u_lightDirection), MAX_LIGHTS, (float*)uniformObject.lightDirection);
 		glUniform4fv(U(u_lightColor), MAX_LIGHTS, (float*)uniformObject.lightColor);
-		objectDirty = 0;
-	}
+	//	objectDirty = 0;
+	//}
 
 //	if(stateDirty){
 
@@ -932,7 +932,7 @@ flushCache(void)
 		uniformState.fogEnd = rwStateCache.fogEnd;
 		uniformState.fogRange = 1.0f/(rwStateCache.fogStart - rwStateCache.fogEnd);
 
-		if(uniformStateDirty[RWGL_ALPHAFUNC] || uniformStateDirty[RWGL_ALPHAREF]){
+		//if(uniformStateDirty[RWGL_ALPHAFUNC] || uniformStateDirty[RWGL_ALPHAREF]){
 			switch(alphaFunc){
 			case ALPHAALWAYS:
 			default:
@@ -945,13 +945,13 @@ flushCache(void)
 				glUniform2f(U(u_alphaRef), -1000.0f, alphaRef);
 				break;
 			}
-			uniformStateDirty[RWGL_ALPHAFUNC] = false;
-			uniformStateDirty[RWGL_ALPHAREF] = false;
-		}
+			//uniformStateDirty[RWGL_ALPHAFUNC] = false;
+			//uniformStateDirty[RWGL_ALPHAREF] = false;
+		//}
 
-		if(uniformStateDirty[RWGL_FOG] ||
+		/*if(uniformStateDirty[RWGL_FOG] ||
 		   uniformStateDirty[RWGL_FOGSTART] ||
-		   uniformStateDirty[RWGL_FOGEND]){
+		   uniformStateDirty[RWGL_FOGEND]){*/
 			float fogData[4] = {
 				uniformState.fogStart,
 				uniformState.fogEnd,
@@ -962,12 +962,12 @@ flushCache(void)
 			uniformStateDirty[RWGL_FOG] = false;
 			uniformStateDirty[RWGL_FOGSTART] = false;
 			uniformStateDirty[RWGL_FOGEND] = false;
-		}
+		//}
 
-		if(uniformStateDirty[RWGL_FOGCOLOR]){
+		//if(uniformStateDirty[RWGL_FOGCOLOR]){
 			glUniform4fv(U(u_fogColor), 1, (float*)&uniformState.fogColor);
 			uniformStateDirty[RWGL_FOGCOLOR] = false;
-		}
+		//}
 }
 
 static void
@@ -1161,7 +1161,7 @@ showRaster(Raster *raster, uint32 flags)
 	gIndices = gIndicesPtr;
 	gIndicesIm2D = gIndicesPtr + 0x300000;
 #endif
-	log2file("showRaster called");
+	//log2file("showRaster called");
 	
 }
 
@@ -1397,6 +1397,7 @@ initOpenGL(void)
 	glClearColor(0.25, 0.25, 0.25, 1.0);
 
 	byte whitepixel[4] = {0xFF, 0xFF, 0xFF, 0xFF};
+
 	glGenTextures(1, &whitetex);
 	glBindTexture(GL_TEXTURE_2D, whitetex);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
