@@ -19,6 +19,7 @@ extern float *gVertexBuffer;
 extern float *gVertexBufferIm2D;
 extern uint16_t *gIndicesIm2D;
 extern uint16_t *gIndices;
+extern uint16_t *gConstIndices;
 
 namespace rw {
 namespace gl3 {
@@ -64,7 +65,7 @@ openIm2D(void)
 #endif
 	const char *vs[] = { header_vert_src, im2d_vert_src, nil };
 	const char *fs[] = { header_frag_src, simple_frag_src, nil };
-	im2dShader = Shader::create(vs, fs);
+	im2dShader = Shader::create(vs, fs, true);
 	assert(im2dShader);
 }
 
@@ -105,6 +106,7 @@ im2DRenderPrimitive(PrimitiveType primType, void *vertices, int32 numVertices)
 
 	memcpy_neon(gVertexBufferIm2D, vertices, numVertices*sizeof(Im2DVertex));
 	vglVertexPointerMapped(gVertexBufferIm2D);
+	vglIndexPointerMapped(gConstIndices);
 	gVertexBufferIm2D += numVertices*(sizeof(Im2DVertex)/sizeof(float));
 	
 	xform[0] = 2.0f/cam->frameBuffer->width;
@@ -188,7 +190,7 @@ openIm3D(void)
 #endif
 	const char *vs[] = { header_vert_src, im3d_vert_src, nil };
 	const char *fs[] = { header_frag_src, simple_frag_src, nil };
-	im3dShader = Shader::create(vs, fs);
+	im3dShader = Shader::create(vs, fs, false);
 	assert(im3dShader);
 }
 

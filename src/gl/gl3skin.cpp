@@ -289,7 +289,7 @@ skinOpen(void *o, int32, int32)
 #endif
 	const char *vs[] = { header_vert_src, skin_vert_src, nil };
 	const char *fs[] = { header_frag_src, simple_frag_src, nil };
-	skinShader = Shader::create(vs, fs);
+	skinShader = Shader::create(vs, fs, false);
 	assert(skinShader);
 
 	return o;

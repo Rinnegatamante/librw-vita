@@ -174,7 +174,7 @@ matfxOpen(void *o, int32, int32)
 #endif
 	const char *vs[] = { header_vert_src, matfx_env_vert_src, nil };
 	const char *fs[] = { header_frag_src, matfx_env_frag_src, nil };
-	envShader = Shader::create(vs, fs);
+	envShader = Shader::create(vs, fs, false);
 	assert(envShader);
 
 	return o;

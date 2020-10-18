@@ -22,6 +22,7 @@ extern float *gVertexBuffer;
 extern uint16_t *gIndicesPtr;
 extern float *gVertexBufferPtr;
 
+uint16_t *gConstIndices;
 float *gVertexBufferIm2D;
 uint16_t *gIndicesIm2D;
 
@@ -1409,10 +1410,15 @@ initOpenGL(void)
 
 	gVertexBufferPtr = (float*)malloc(0x1800000);
 	gIndicesPtr = (uint16_t*)malloc(0x600000);
+	gConstIndices = (uint16_t*)malloc(sizeof(uint16_t) * 512);
 	gVertexBuffer = gVertexBufferPtr;
 	gVertexBufferIm2D = gVertexBufferPtr + 0xC00000;
 	gIndices = gIndicesPtr;
 	gIndicesIm2D = gIndicesPtr + 0x300000;
+	
+	for (uint16_t i = 0; i < 512; i++) {
+		gConstIndices[i] = i;
+	}
 	
 #ifdef RW_GLES2
 #include "gl2_shaders/default_vs_gl2.inc"
@@ -1423,7 +1429,7 @@ initOpenGL(void)
 #endif
 	const char *vs[] = { header_vert_src, default_vert_src, nil };
 	const char *fs[] = { header_frag_src, simple_frag_src, nil };
-	defaultShader = Shader::create(vs, fs);
+	defaultShader = Shader::create(vs, fs, false);
 	assert(defaultShader);
 
 	openIm2D();

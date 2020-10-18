@@ -31,7 +31,7 @@ struct Shader
 	// same number of elements as UniformRegistry::numUniforms
 	GLint *uniformLocations;
 
-	static Shader *create(const char **vsrc, const char **fsrc);
+	static Shader *create(const char **vsrc, const char **fsrc, bool is_2d);
 //	static Shader *fromFiles(const char *vs, const char *fs);
 //	static Shader *fromStrings(const char *vsrc, const char *fsrc);
 	void use(void);

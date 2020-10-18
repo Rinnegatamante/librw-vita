@@ -136,7 +136,7 @@ compileshader(GLenum type, const char **src, GLuint *shader)
 }
 
 static int
-linkprogram(GLint vs, GLint fs, GLuint *program)
+linkprogram(GLint vs, GLint fs, GLuint *program, bool is_2d)
 {
 	GLint prog, success;
 	GLint len;
@@ -153,7 +153,16 @@ linkprogram(GLint vs, GLint fs, GLuint *program)
 	glBindAttribLocation(prog, ATTRIB_WEIGHTS, "in_weights");
 	glBindAttribLocation(prog, ATTRIB_INDICES, "in_indices");
 #endif
-
+	
+	int stride = 0;
+	int pos_size = is_2d ? 4 : 3;
+	stride += vglBindPackedAttribLocation(prog, "in_pos"    , pos_size, GL_FLOAT, stride, stride + sizeof(float) * pos_size) * (sizeof(float) * pos_size);
+	stride += vglBindPackedAttribLocation(prog, "in_normal" ,        3, GL_FLOAT, stride, stride + sizeof(float) * 3) * (sizeof(float) * 3);
+	stride += vglBindPackedAttribLocation(prog, "in_color"  ,        4, GL_UNSIGNED_BYTE, stride, stride + 4) * 4;
+	stride += vglBindPackedAttribLocation(prog, "in_tex0"   ,        2, GL_FLOAT, stride, stride + sizeof(float) * 2) * (sizeof(float) * 2);
+	stride += vglBindPackedAttribLocation(prog, "in_weights",        4, GL_FLOAT, stride, stride + sizeof(float) * 4) * (sizeof(float) * 4);
+	vglBindPackedAttribLocation(prog, "in_indices",        4, GL_UNSIGNED_BYTE, stride, stride + 4);
+	
 	glAttachShader(prog, vs);
 	glAttachShader(prog, fs);
 	glLinkProgram(prog);
@@ -163,7 +172,7 @@ linkprogram(GLint vs, GLint fs, GLuint *program)
 }
 
 Shader*
-Shader::create(const char **vsrc, const char **fsrc)
+Shader::create(const char **vsrc, const char **fsrc, bool is_2d)
 {
 	GLuint vs, fs, program;
 	int i;
@@ -179,14 +188,12 @@ Shader::create(const char **vsrc, const char **fsrc)
 		return nil;
 	}
 
-	fail = linkprogram(vs, fs, &program);
+	fail = linkprogram(vs, fs, &program, is_2d);
 	if(fail){
 		glDeleteShader(fs);
 		glDeleteShader(vs);
 		return nil;
 	}
-	glDeleteProgram(vs);
-	glDeleteProgram(fs);
 
 	Shader *sh = rwNewT(Shader, 1, MEMDUR_EVENT | ID_DRIVER);	 // or global?
 
