@@ -143,6 +143,9 @@ linkprogram(GLint vs, GLint fs, GLuint *program, bool is_2d)
 	char *log;
 
 	prog = glCreateProgram();
+	
+	glAttachShader(prog, vs);
+	glAttachShader(prog, fs);
 
 #ifdef RW_GLES2
 	// TODO: perhaps just do this always and get rid of the layout stuff?
@@ -163,8 +166,6 @@ linkprogram(GLint vs, GLint fs, GLuint *program, bool is_2d)
 	stride += vglBindPackedAttribLocation(prog, "in_weights",        4, GL_FLOAT, stride, stride + sizeof(float) * 4) * (sizeof(float) * 4);
 	vglBindPackedAttribLocation(prog, "in_indices",        4, GL_UNSIGNED_BYTE, stride, stride + 4);
 	
-	glAttachShader(prog, vs);
-	glAttachShader(prog, fs);
 	glLinkProgram(prog);
 
 	*program = prog;

@@ -289,7 +289,7 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 	}
 	
 	memcpy_neon(gVertexBuffer, header->vertexBuffer, header->totalNumVertex*attribs[0].stride);
-	vglVertexPointerMapped(gVertexBuffer);
+	vglVertexAttribPointerMapped(0, gVertexBuffer);
 	gVertexBuffer += (header->totalNumVertex*attribs[0].stride) / sizeof(float);
 }
 
