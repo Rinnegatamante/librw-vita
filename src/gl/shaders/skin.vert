@@ -25,13 +25,13 @@ void main(
 	float3 SkinVertex = float3(0.0, 0.0, 0.0);
 	float3 SkinNormal = float3(0.0, 0.0, 0.0);
 	for(int i = 0; i < 4; i++){
-		SkinVertex += (mul(u_boneMatrices[int(in_indices[i])], float4(in_pos, 1.0))).xyz * in_weights[i];
-		SkinNormal += (mul(float3x3(u_boneMatrices[int(in_indices[i])]), in_normal)) * in_weights[i];
+		SkinVertex += (mul(float4(in_pos, 1.0), u_boneMatrices[int(in_indices[i])])).xyz * in_weights[i];
+		SkinNormal += mul(in_normal, float3x3(u_boneMatrices[int(in_indices[i])])) * in_weights[i];
 	}
-
-	float4 Vertex = mul(u_world, float4(SkinVertex, 1.0));
-	gl_Position = mul(u_proj * u_view, Vertex);
-	float3 Normal = mul(float3x3(u_world), SkinNormal);
+	
+	float4 Vertex = mul(float4(SkinVertex, 1.0), u_world);
+	gl_Position = mul(Vertex, u_view * u_proj);
+	float3 Normal = mul(SkinNormal, float3x3(u_world));
 
 	v_tex0 = in_tex0;
 

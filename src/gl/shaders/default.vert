@@ -18,9 +18,9 @@ void main(
 	float out v_fog : FOG,
 	float4 out gl_Position : POSITION
 ) {
-	float4 Vertex = mul(u_world, float4(in_pos, 1.0));
-	gl_Position = mul(u_proj * u_view, Vertex);
-	float3 Normal = mul(float3x3(u_world), in_normal);
+	float4 Vertex = mul(float4(in_pos, 1.0), u_world);
+	gl_Position = mul(Vertex, u_view * u_proj);
+	float3 Normal = mul(in_normal, float3x3(u_world));
 
 	v_tex0 = in_tex0;
 

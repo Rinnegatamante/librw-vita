@@ -19,9 +19,9 @@ const char *default_vert_src =
 "	float out v_fog : FOG,\n"
 "	float4 out gl_Position : POSITION\n"
 ") {\n"
-"	float4 Vertex = mul(u_world, float4(in_pos, 1.0));\n"
-"	gl_Position = mul(u_proj * u_view, Vertex);\n"
-"	float3 Normal = mul(float3x3(u_world), in_normal);\n"
+"	float4 Vertex = mul(float4(in_pos, 1.0), u_world);\n"
+"	gl_Position = mul(Vertex, u_view * u_proj);\n"
+"	float3 Normal = mul(in_normal, float3x3(u_world));\n"
 
 "	v_tex0 = in_tex0;\n"
 

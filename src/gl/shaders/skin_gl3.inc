@@ -26,13 +26,13 @@ const char *skin_vert_src =
 "	float3 SkinVertex = float3(0.0, 0.0, 0.0);\n"
 "	float3 SkinNormal = float3(0.0, 0.0, 0.0);\n"
 "	for(int i = 0; i < 4; i++){\n"
-"		SkinVertex += (mul(u_boneMatrices[int(in_indices[i])], float4(in_pos, 1.0))).xyz * in_weights[i];\n"
-"		SkinNormal += (mul(float3x3(u_boneMatrices[int(in_indices[i])]), in_normal)) * in_weights[i];\n"
+"		SkinVertex += (mul(float4(in_pos, 1.0), u_boneMatrices[int(in_indices[i])])).xyz * in_weights[i];\n"
+"		SkinNormal += mul(in_normal, float3x3(u_boneMatrices[int(in_indices[i])])) * in_weights[i];\n"
 "	}\n"
-
-"	float4 Vertex = mul(u_world, float4(SkinVertex, 1.0));\n"
-"	gl_Position = mul(u_proj * u_view, Vertex);\n"
-"	float3 Normal = mul(float3x3(u_world), SkinNormal);\n"
+"	\n"
+"	float4 Vertex = mul(float4(SkinVertex, 1.0), u_world);\n"
+"	gl_Position = mul(Vertex, u_view * u_proj);\n"
+"	float3 Normal = mul(SkinNormal, float3x3(u_world));\n"
 
 "	v_tex0 = in_tex0;\n"
 

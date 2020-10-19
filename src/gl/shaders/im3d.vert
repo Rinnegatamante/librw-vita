@@ -11,9 +11,9 @@ void main(
 	float out v_fog : FOG,
 	float4 out gl_Position : POSITION
 ) {
-	float4 Vertex = mul(u_world, float4(in_pos, 1.0));
-	float4 CamVertex = mul(u_view, Vertex);
-	gl_Position = mul(u_proj, CamVertex);
+	float4 Vertex = mul(float4(in_pos, 1.0), u_world);
+	float4 CamVertex = mul(Vertex, u_view);
+	gl_Position = mul(CamVertex, u_proj);
 	v_color = in_color;
 	v_tex0 = in_tex0;
 	v_fog = DoFog(gl_Position.w, u_fogData);
