@@ -29,8 +29,10 @@ void
 drawInst_simple(InstanceDataHeader *header, InstanceData *inst)
 {
 	flushCache();
-	glDrawElements(header->primType, inst->numIndex,
-	               GL_UNSIGNED_SHORT, (void*)(uintptr)inst->offset);
+	memcpy_neon(gIndices, (uint8_t*)header->indexBuffer + inst->offset, inst->numIndex * 2);
+	vglIndexPointerMapped(gIndices + inst->offset);
+	gIndices += inst->numIndex;
+	vglDrawObjects(header->primType, inst->numIndex, GL_FALSE);
 }
 
 // Emulate PS2 GS alpha test FB_ONLY case: failed alpha writes to frame- but not to depth buffer
