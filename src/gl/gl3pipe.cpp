@@ -237,7 +237,7 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 	// Fill vertex buffer
 	//
 
-	uint8 *verts = gVertexBuffer;
+	uint8 *verts = (uint8*)gVertexBuffer;
 
 	// Positions
 	if(!reinstance || geo->lockedSinceInst&Geometry::LOCKVERTICES){
