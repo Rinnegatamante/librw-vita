@@ -32,7 +32,7 @@ freeInstanceData(Geometry *geometry)
 	geometry->instData = nil;
 
 	rwFree(header->indexBuffer);
-	rwFree(header->vertexBuffer);
+	//rwFree(header->vertexBuffer);
 	rwFree(header->attribDesc);
 	rwFree(header);
 }
@@ -84,10 +84,6 @@ instanceMesh(rw::ObjPipeline *rwpipe, Geometry *geo)
 	header->attribDesc = nil;
 	header->ibo = 0;
 	header->vbo = 0;
-	
-	memcpy_neon(gIndices, header->indexBuffer, header->totalNumIndex*2);
-	vglIndexPointerMapped(gIndices);
-	gIndices += header->totalNumIndex;
 
 	return header;
 }
@@ -230,7 +226,7 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 		//
 		// Allocate vertex buffer
 		//
-		header->vertexBuffer = rwNewT(uint8, header->totalNumVertex*stride, MEMDUR_EVENT | ID_GEOMETRY);
+		//header->vertexBuffer = rwNewT(uint8, header->totalNumVertex*stride, MEMDUR_EVENT | ID_GEOMETRY);
 		//assert(header->vbo == 0);
 		//glGenBuffers(1, &header->vbo);
 	}
