@@ -231,7 +231,7 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 		// Allocate vertex buffer
 		//
 		header->vertexBuffer = rwNewT(uint8, header->totalNumVertex*stride, MEMDUR_EVENT | ID_GEOMETRY);
-		assert(header->vbo == 0);
+		//assert(header->vbo == 0);
 		//glGenBuffers(1, &header->vbo);
 	}
 

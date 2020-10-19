@@ -120,8 +120,8 @@ skinInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 		// Allocate vertex buffer
 		//
 		header->vertexBuffer = rwNewT(uint8, header->totalNumVertex*stride, MEMDUR_EVENT | ID_GEOMETRY);
-		assert(header->vbo == 0);
-		glGenBuffers(1, &header->vbo);
+		//assert(header->vbo == 0);
+		//glGenBuffers(1, &header->vbo);
 	}
 
 	Skin *skin = Skin::get(geo);
@@ -131,7 +131,7 @@ skinInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 	// Fill vertex buffer
 	//
 
-	uint8 *verts = header->vertexBuffer;
+	uint8 *verts = gVertexBuffer;
 
 	// Positions
 	if(!reinstance || geo->lockedSinceInst&Geometry::LOCKVERTICES){
@@ -191,7 +191,8 @@ skinInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 			  header->totalNumVertex, a->stride);
 	}
 
-	memcpy_neon(gVertexBuffer, header->vertexBuffer, header->totalNumVertex*attribs[0].stride);
+	vglVertexAttribPointerMapped(0, gVertexBuffer);
+	gVertexBuffer += (header->totalNumVertex*attribs[0].stride) / sizeof(float);
 }
 
 void
