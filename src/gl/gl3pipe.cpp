@@ -232,7 +232,7 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 		//
 		header->vertexBuffer = rwNewT(uint8, header->totalNumVertex*stride, MEMDUR_EVENT | ID_GEOMETRY);
 		assert(header->vbo == 0);
-		glGenBuffers(1, &header->vbo);
+		//glGenBuffers(1, &header->vbo);
 	}
 
 	attribs = header->attribDesc;
@@ -241,7 +241,7 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 	// Fill vertex buffer
 	//
 
-	uint8 *verts = header->vertexBuffer;
+	uint8 *verts = gVertexBuffer;
 
 	// Positions
 	if(!reinstance || geo->lockedSinceInst&Geometry::LOCKVERTICES){
@@ -288,7 +288,6 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 		}
 	}
 	
-	memcpy_neon(gVertexBuffer, header->vertexBuffer, header->totalNumVertex*attribs[0].stride);
 	vglVertexAttribPointerMapped(0, gVertexBuffer);
 	gVertexBuffer += (header->totalNumVertex*attribs[0].stride) / sizeof(float);
 }
