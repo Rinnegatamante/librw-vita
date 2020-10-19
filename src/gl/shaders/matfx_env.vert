@@ -21,7 +21,7 @@ void main(
 	float4 out gl_Position : POSITION
 ) {
 	float4 Vertex = mul(float4(in_pos, 1.0), u_world);
-	gl_Position = mul(Vertex, u_view * u_proj);
+	gl_Position = mul(mul(Vertex, u_view), u_proj);
 	float3 Normal = mul(in_normal, float3x3(u_world));
 
 	v_tex0 = in_tex0;

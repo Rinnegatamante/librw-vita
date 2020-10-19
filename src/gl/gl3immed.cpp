@@ -18,6 +18,8 @@
 extern float *gVertexBuffer;
 extern float *gVertexBufferIm2D;
 extern uint16_t *gIndicesIm2D;
+extern float *gVertexBufferIm3D;
+extern uint16_t *gIndicesIm3D;
 extern uint16_t *gIndices;
 extern uint16_t *gConstIndices;
 
@@ -215,9 +217,9 @@ im3DTransform(void *vertices, int32 numVertices, Matrix *world, uint32 flags)
 	if((flags & im3d::VERTEXUV) == 0)
 		SetRenderStatePtr(TEXTURERASTER, nil);
 
-	memcpy_neon(gVertexBufferIm2D, vertices, numVertices*sizeof(Im3DVertex));
-	vglVertexAttribPointerMapped(0, gVertexBufferIm2D);
-	gVertexBufferIm2D += numVertices*(sizeof(Im3DVertex)/sizeof(float));
+	memcpy_neon(gVertexBufferIm3D, vertices, numVertices*sizeof(Im3DVertex));
+	vglVertexAttribPointerMapped(0, gVertexBufferIm3D);
+	gVertexBufferIm3D += numVertices*(sizeof(Im3DVertex)/sizeof(float));
 
 #ifndef RW_GL_USE_VAOS
 	//setAttribPointers(im3dattribDesc, 3);
@@ -236,9 +238,9 @@ im3DRenderPrimitive(PrimitiveType primType)
 void
 im3DRenderIndexedPrimitive(PrimitiveType primType, void *indices, int32 numIndices)
 {
-	memcpy_neon(gIndicesIm2D, indices, numIndices * 2);
-	vglIndexPointerMapped(gIndicesIm2D);
-	gIndicesIm2D += numIndices;
+	memcpy_neon(gIndicesIm3D, indices, numIndices * 2);
+	vglIndexPointerMapped(gIndicesIm3D);
+	gIndicesIm3D += numIndices;
 
 	flushCache();
 	vglDrawObjects(primTypeMap[primType], numIndices, GL_FALSE);

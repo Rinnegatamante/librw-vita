@@ -20,7 +20,7 @@ const char *default_vert_src =
 "	float4 out gl_Position : POSITION\n"
 ") {\n"
 "	float4 Vertex = mul(float4(in_pos, 1.0), u_world);\n"
-"	gl_Position = mul(Vertex, u_view * u_proj);\n"
+"	gl_Position = mul(mul(Vertex, u_view), u_proj);\n"
 "	float3 Normal = mul(in_normal, float3x3(u_world));\n"
 
 "	v_tex0 = in_tex0;\n"

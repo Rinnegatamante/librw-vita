@@ -31,7 +31,7 @@ const char *skin_vert_src =
 "	}\n"
 "	\n"
 "	float4 Vertex = mul(float4(SkinVertex, 1.0), u_world);\n"
-"	gl_Position = mul(Vertex, u_view * u_proj);\n"
+"	gl_Position = mul(mul(Vertex, u_view), u_proj);\n"
 "	float3 Normal = mul(SkinNormal, float3x3(u_world));\n"
 
 "	v_tex0 = in_tex0;\n"

@@ -20,11 +20,17 @@
 extern uint16_t *gIndices;
 extern float *gVertexBuffer;
 extern uint16_t *gIndicesPtr;
+uint16_t *gIndicesIm2DPtr;
+uint16_t *gIndicesIm3DPtr;
 extern float *gVertexBufferPtr;
+float *gVertexBufferIm2DPtr;
+float *gVertexBufferIm3DPtr;
 
 uint16_t *gConstIndices;
 float *gVertexBufferIm2D;
+float *gVertexBufferIm3D;
 uint16_t *gIndicesIm2D;
+uint16_t *gIndicesIm3D;
 
 namespace rw {
 namespace gl3 {
@@ -1156,10 +1162,12 @@ showRaster(Raster *raster, uint32 flags)
 		vglWaitVblankStart(GL_FALSE);
 	vglStopRendering();
 	vglStartRendering();
-	gVertexBuffer = gVertexBufferPtr;
-	gVertexBufferIm2D = gVertexBufferPtr + 0xC00000;
-	gIndices = gIndicesPtr;
-	gIndicesIm2D = gIndicesPtr + 0x300000;
+	gVertexBuffer     = gVertexBufferPtr;
+	gVertexBufferIm2D = gVertexBufferIm2DPtr;
+	gVertexBufferIm3D = gVertexBufferIm3DPtr;
+	gIndices     = gIndicesPtr;
+	gIndicesIm2D = gIndicesIm2DPtr;
+	gIndicesIm3D = gIndicesIm3DPtr;
 #endif
 	//log2file("showRaster called");
 	
@@ -1409,13 +1417,21 @@ initOpenGL(void)
 
 	resetRenderState();
 
-	gVertexBufferPtr = (float*)malloc(0x1800000);
-	gIndicesPtr = (uint16_t*)malloc(0x600000);
+	gVertexBufferPtr     = (float*)malloc(0x1800000);
+	gVertexBufferIm2DPtr = (float*)malloc(0x500000);
+	gVertexBufferIm3DPtr = (float*)malloc(0x500000);
+	gIndicesPtr       = (uint16_t*)malloc(0x600000);
+	gIndicesIm2DPtr   = (uint16_t*)malloc(0x600000);
+	gIndicesIm3DPtr   = (uint16_t*)malloc(0x600000);
+
 	gConstIndices = (uint16_t*)malloc(sizeof(uint16_t) * 512);
-	gVertexBuffer = gVertexBufferPtr;
-	gVertexBufferIm2D = gVertexBufferPtr + 0xC00000;
-	gIndices = gIndicesPtr;
-	gIndicesIm2D = gIndicesPtr + 0x300000;
+	
+	gVertexBuffer     = gVertexBufferPtr;
+	gVertexBufferIm2D = gVertexBufferIm2DPtr;
+	gVertexBufferIm3D = gVertexBufferIm3DPtr;
+	gIndices     = gIndicesPtr;
+	gIndicesIm2D = gIndicesIm2DPtr;
+	gIndicesIm3D = gIndicesIm3DPtr;
 	
 	for (uint16_t i = 0; i < 512; i++) {
 		gConstIndices[i] = i;
