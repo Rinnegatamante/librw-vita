@@ -32,7 +32,7 @@ freeInstanceData(Geometry *geometry)
 	geometry->instData = nil;
 
 	rwFree(header->indexBuffer);
-	//rwFree(header->vertexBuffer);
+	rwFree(header->vertexBuffer);
 	rwFree(header->attribDesc);
 	rwFree(header);
 }
@@ -226,7 +226,7 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 		//
 		// Allocate vertex buffer
 		//
-		//header->vertexBuffer = rwNewT(uint8, header->totalNumVertex*stride, MEMDUR_EVENT | ID_GEOMETRY);
+		header->vertexBuffer = rwNewT(uint8, header->totalNumVertex*stride, MEMDUR_EVENT | ID_GEOMETRY);
 		//assert(header->vbo == 0);
 		//glGenBuffers(1, &header->vbo);
 	}
@@ -237,7 +237,7 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 	// Fill vertex buffer
 	//
 
-	uint8 *verts = (uint8*)gVertexBuffer;
+	uint8 *verts = (uint8*)header->vertexBuffer;
 
 	// Positions
 	if(!reinstance || geo->lockedSinceInst&Geometry::LOCKVERTICES){
@@ -283,9 +283,6 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 				header->totalNumVertex, a->stride);
 		}
 	}
-	
-	vglVertexAttribPointerMapped(0, gVertexBuffer);
-	gVertexBuffer += (header->totalNumVertex*attribs[0].stride) / sizeof(float);
 }
 
 void

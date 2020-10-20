@@ -91,22 +91,6 @@ printAttribInfo(AttribDesc *attribs, int n)
 }
 */
 
-#ifdef RW_OPENGL
-void
-setAttribPointers(InstanceDataHeader *inst)
-{
-	static GLenum attribType[] = {
-		GL_FLOAT,
-		GL_BYTE, GL_UNSIGNED_BYTE,
-		GL_SHORT, GL_UNSIGNED_SHORT
-	};
-	for(int32 i = 0; i < inst->numAttribs; i++){
-		AttribDesc *a = &inst->attribs[i];
-		vglVertexAttribPointerMapped(a->index, (void*)(uint64)a->offset);
-	}
-}
-#endif
-
 void
 packattrib(uint8 *dst, float32 *src, AttribDesc *a, float32 scale=1.0f)
 {

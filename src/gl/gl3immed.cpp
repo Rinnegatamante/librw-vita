@@ -15,12 +15,10 @@
 #include "rwgl3impl.h"
 #include "rwgl3shader.h"
 
-extern float *gVertexBuffer;
 extern float *gVertexBufferIm2D;
 extern uint16_t *gIndicesIm2D;
 extern float *gVertexBufferIm3D;
 extern uint16_t *gIndicesIm3D;
-extern uint16_t *gIndices;
 extern uint16_t *gConstIndices;
 
 namespace rw {
@@ -218,8 +216,6 @@ im3DTransform(void *vertices, int32 numVertices, Matrix *world, uint32 flags)
 		SetRenderStatePtr(TEXTURERASTER, nil);
 
 	memcpy_neon(gVertexBufferIm3D, vertices, numVertices*sizeof(Im3DVertex));
-	vglVertexAttribPointerMapped(0, gVertexBufferIm3D);
-	gVertexBufferIm3D += numVertices*(sizeof(Im3DVertex)/sizeof(float));
 
 #ifndef RW_GL_USE_VAOS
 	//setAttribPointers(im3dattribDesc, 3);
@@ -232,6 +228,8 @@ im3DRenderPrimitive(PrimitiveType primType)
 {
 	flushCache();
 	vglIndexPointerMapped(gConstIndices);
+	vglVertexAttribPointerMapped(0, gVertexBufferIm3D);
+	gVertexBufferIm3D += num3DVertices*(sizeof(Im3DVertex)/sizeof(float));
 	vglDrawObjects(primTypeMap[primType], num3DVertices, GL_FALSE);
 }
 
@@ -240,6 +238,8 @@ im3DRenderIndexedPrimitive(PrimitiveType primType, void *indices, int32 numIndic
 {
 	memcpy_neon(gIndicesIm3D, indices, numIndices * 2);
 	vglIndexPointerMapped(gIndicesIm3D);
+	vglVertexAttribPointerMapped(0, gVertexBufferIm3D);
+	gVertexBufferIm3D += num3DVertices*(sizeof(Im3DVertex)/sizeof(float));
 	gIndicesIm3D += numIndices;
 
 	flushCache();

@@ -119,7 +119,7 @@ skinInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 		//
 		// Allocate vertex buffer
 		//
-		//header->vertexBuffer = rwNewT(uint8, header->totalNumVertex*stride, MEMDUR_EVENT | ID_GEOMETRY);
+		header->vertexBuffer = rwNewT(uint8, header->totalNumVertex*stride, MEMDUR_EVENT | ID_GEOMETRY);
 		//assert(header->vbo == 0);
 		//glGenBuffers(1, &header->vbo);
 	}
@@ -131,7 +131,7 @@ skinInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 	// Fill vertex buffer
 	//
 
-	uint8 *verts = (uint8*)gVertexBuffer;
+	uint8 *verts = (uint8*)header->vertexBuffer;
 
 	// Positions
 	if(!reinstance || geo->lockedSinceInst&Geometry::LOCKVERTICES){
@@ -190,9 +190,6 @@ skinInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 			  (RGBA*)skin->indices,
 			  header->totalNumVertex, a->stride);
 	}
-
-	vglVertexAttribPointerMapped(0, gVertexBuffer);
-	gVertexBuffer += (header->totalNumVertex*attribs[0].stride) / sizeof(float);
 }
 
 void

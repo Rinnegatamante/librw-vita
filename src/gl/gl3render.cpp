@@ -30,8 +30,11 @@ drawInst_simple(InstanceDataHeader *header, InstanceData *inst)
 {
 	flushCache();
 	memcpy_neon(gIndices, (uint8_t*)header->indexBuffer + inst->offset, inst->numIndex * 2);
-	vglIndexPointerMapped(gIndices + inst->offset);
+	vglIndexPointerMapped(gIndices);
 	gIndices += inst->numIndex;
+	memcpy_neon(gVertexBuffer, (uint8_t*)header->vertexBuffer, inst->numVertices * header->attribDesc[0].stride);
+	vglVertexAttribPointerMapped(0, gVertexBuffer);
+	gVertexBuffer += (inst->numVertices * header->attribDesc[0].stride) / sizeof(float);
 	vglDrawObjects(header->primType, inst->numIndex, GL_FALSE);
 }
 
@@ -81,7 +84,7 @@ drawInst(InstanceDataHeader *header, InstanceData *inst)
 void
 setAttribPointers(AttribDesc *attribDescs, int32 numAttribs)
 {
-	vglVertexAttribPointerMapped(0, gVertexBuffer);
+	//vglVertexAttribPointerMapped(0, gVertexBuffer);
 }
 
 void
