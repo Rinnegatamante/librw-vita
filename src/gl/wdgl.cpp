@@ -28,11 +28,6 @@
 
 #define PLUGIN_ID 2
 
-uint16_t *gIndices;
-float *gVertexBuffer;
-uint16_t *gIndicesPtr;
-float *gVertexBufferPtr;
-
 namespace rw {
 namespace wdgl {
 

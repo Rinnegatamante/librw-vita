@@ -17,12 +17,8 @@
 
 #define PLUGIN_ID 0
 
-extern uint16_t *gIndices;
-extern float *gVertexBuffer;
-extern uint16_t *gIndicesPtr;
 uint16_t *gIndicesIm2DPtr;
 uint16_t *gIndicesIm3DPtr;
-extern float *gVertexBufferPtr;
 float *gVertexBufferIm2DPtr;
 float *gVertexBufferIm3DPtr;
 
@@ -1162,10 +1158,8 @@ showRaster(Raster *raster, uint32 flags)
 		vglWaitVblankStart(GL_FALSE);
 	vglStopRendering();
 	vglStartRendering();
-	gVertexBuffer     = gVertexBufferPtr;
 	gVertexBufferIm2D = gVertexBufferIm2DPtr;
 	gVertexBufferIm3D = gVertexBufferIm3DPtr;
-	gIndices     = gIndicesPtr;
 	gIndicesIm2D = gIndicesIm2DPtr;
 	gIndicesIm3D = gIndicesIm3DPtr;
 #endif
@@ -1417,23 +1411,19 @@ initOpenGL(void)
 
 	resetRenderState();
 
-	gVertexBufferPtr     = (float*)malloc(0x1800000);
 	gVertexBufferIm2DPtr = (float*)malloc(0x500000);
-	gVertexBufferIm3DPtr = (float*)malloc(0x500000);
-	gIndicesPtr       = (uint16_t*)malloc(0x600000);
+	gVertexBufferIm3DPtr = (float*)malloc(0x1800000);
 	gIndicesIm2DPtr   = (uint16_t*)malloc(0x600000);
-	gIndicesIm3DPtr   = (uint16_t*)malloc(0x600000);
+	gIndicesIm3DPtr   = (uint16_t*)malloc(0x1800000);
 
-	gConstIndices = (uint16_t*)malloc(sizeof(uint16_t) * 512);
+	gConstIndices = (uint16_t*)malloc(sizeof(uint16_t) * 0xFFFF);
 	
-	gVertexBuffer     = gVertexBufferPtr;
 	gVertexBufferIm2D = gVertexBufferIm2DPtr;
 	gVertexBufferIm3D = gVertexBufferIm3DPtr;
-	gIndices     = gIndicesPtr;
 	gIndicesIm2D = gIndicesIm2DPtr;
 	gIndicesIm3D = gIndicesIm3DPtr;
 	
-	for (uint16_t i = 0; i < 512; i++) {
+	for (uint16_t i = 0; i < 0xFFFF; i++) {
 		gConstIndices[i] = i;
 	}
 	

@@ -15,11 +15,6 @@
 
 #include "rwgl3impl.h"
 
-extern uint16_t *gIndices;
-extern float *gVertexBuffer;
-extern uint16_t *gIndicesPtr;
-extern float *gVertexBufferPtr;
-
 namespace rw {
 namespace gl3 {
 
@@ -28,13 +23,8 @@ namespace gl3 {
 void
 drawInst_simple(InstanceDataHeader *header, InstanceData *inst)
 {
-	flushCache();
-	memcpy_neon(gIndices, (uint8_t*)header->indexBuffer + inst->offset, inst->numIndex * 2);
-	vglIndexPointerMapped(gIndices);
-	gIndices += inst->numIndex;
-	memcpy_neon(gVertexBuffer, (uint8_t*)header->vertexBuffer, inst->numVertices * header->attribDesc[0].stride);
-	vglVertexAttribPointerMapped(0, gVertexBuffer);
-	gVertexBuffer += (inst->numVertices * header->attribDesc[0].stride) / sizeof(float);
+	vglIndexPointerMapped(header->indexBuffer + inst->offset);
+	vglVertexAttribPointerMapped(0, header->vertexBuffer);
 	vglDrawObjects(header->primType, inst->numIndex, GL_FALSE);
 }
 
@@ -140,11 +130,13 @@ defaultRenderCB(Atomic *atomic, InstanceDataHeader *header)
 	while(n--){
 		m = inst->material;
 
+		rw::SetRenderState(VERTEXALPHA, inst->vertexAlpha || m->color.alpha != 0xFF);
+		
+		flushCache();
+		
 		setMaterial(m->color, m->surfaceProps);
 
 		setTexture(0, m->texture);
-
-		rw::SetRenderState(VERTEXALPHA, inst->vertexAlpha || m->color.alpha != 0xFF);
 
 		drawInst(header, inst);
 		inst++;

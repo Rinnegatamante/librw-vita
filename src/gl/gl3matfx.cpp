@@ -33,16 +33,17 @@ static int32 u_colorClamp;
 void
 matfxDefaultRender(InstanceDataHeader *header, InstanceData *inst)
 {
-	Material *m;
-	m = inst->material;
+	Material *m = inst->material;
 
 	defaultShader->use();
+	
+	rw::SetRenderState(VERTEXALPHA, inst->vertexAlpha || m->color.alpha != 0xFF);
+
+	flushCache();
 
 	setMaterial(m->color, m->surfaceProps);
 
 	setTexture(0, m->texture);
-
-	rw::SetRenderState(VERTEXALPHA, inst->vertexAlpha || m->color.alpha != 0xFF);
 
 	drawInst(header, inst);
 }
@@ -89,6 +90,11 @@ matfxEnvRender(InstanceDataHeader *header, InstanceData *inst, MatFX::Env *env)
 	}
 
 	envShader->use();
+	
+	rw::SetRenderState(VERTEXALPHA, 1);
+	rw::SetRenderState(SRCBLEND, BLENDONE);
+	
+	flushCache();
 
 	setTexture(0, m->texture);
 	setTexture(1, env->tex);
@@ -108,9 +114,6 @@ matfxEnvRender(InstanceDataHeader *header, InstanceData *inst, MatFX::Env *env)
 		glUniform4fv(U(u_colorClamp), 1, zero);
 	else
 		glUniform4fv(U(u_colorClamp), 1, one);
-
-	rw::SetRenderState(VERTEXALPHA, 1);
-	rw::SetRenderState(SRCBLEND, BLENDONE);
 
 	drawInst(header, inst);
 

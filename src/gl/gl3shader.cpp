@@ -149,12 +149,12 @@ linkprogram(GLint vs, GLint fs, GLuint *program, bool is_2d)
 	
 	int stride = 0;
 	int pos_size = is_2d ? 4 : 3;
-	stride += vglBindPackedAttribLocation(prog, "in_pos"    , pos_size, GL_FLOAT, stride, stride + sizeof(float) * pos_size) * (sizeof(float) * pos_size);
-	stride += vglBindPackedAttribLocation(prog, "in_normal" ,        3, GL_FLOAT, stride, stride + sizeof(float) * 3) * (sizeof(float) * 3);
+	stride += vglBindPackedAttribLocation(prog, "in_pos"    , pos_size, GL_FLOAT,         stride, stride + sizeof(float) * pos_size) * (sizeof(float) * pos_size);
+	stride += vglBindPackedAttribLocation(prog, "in_normal" ,        3, GL_FLOAT,         stride, stride + sizeof(float) * 3) * (sizeof(float) * 3);
 	stride += vglBindPackedAttribLocation(prog, "in_color"  ,        4, GL_UNSIGNED_BYTE, stride, stride + 4) * 4;
-	stride += vglBindPackedAttribLocation(prog, "in_tex0"   ,        2, GL_FLOAT, stride, stride + sizeof(float) * 2) * (sizeof(float) * 2);
-	stride += vglBindPackedAttribLocation(prog, "in_weights",        4, GL_FLOAT, stride, stride + sizeof(float) * 4) * (sizeof(float) * 4);
-	vglBindPackedAttribLocation(prog, "in_indices",        4, GL_UNSIGNED_BYTE, stride, stride + 4);
+	stride += vglBindPackedAttribLocation(prog, "in_tex0"   ,        2, GL_FLOAT,         stride, stride + sizeof(float) * 2) * (sizeof(float) * 2);
+	stride += vglBindPackedAttribLocation(prog, "in_weights",        4, GL_FLOAT,         stride, stride + sizeof(float) * 4) * (sizeof(float) * 4);
+	          vglBindPackedAttribLocation(prog, "in_indices",        4, GL_UNSIGNED_BYTE, stride, stride + 4);
 	
 	glLinkProgram(prog);
 

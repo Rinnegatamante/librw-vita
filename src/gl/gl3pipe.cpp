@@ -12,9 +12,6 @@
 #include "rwgl3.h"
 #include "rwgl3shader.h"
 
-extern float *gVertexBuffer;
-extern uint16_t *gIndices;
-
 namespace rw {
 namespace gl3 {
 

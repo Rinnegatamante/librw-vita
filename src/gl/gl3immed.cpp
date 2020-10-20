@@ -103,11 +103,6 @@ im2DRenderPrimitive(PrimitiveType primType, void *vertices, int32 numVertices)
 	GLfloat xform[4];
 	Camera *cam;
 	cam = (Camera*)engine->currentCamera;
-
-	memcpy_neon(gVertexBufferIm2D, vertices, numVertices*sizeof(Im2DVertex));
-	vglVertexAttribPointerMapped(0, gVertexBufferIm2D);
-	vglIndexPointerMapped(gConstIndices);
-	gVertexBufferIm2D += numVertices*(sizeof(Im2DVertex)/sizeof(float));
 	
 	xform[0] = 2.0f/cam->frameBuffer->width;
 	xform[1] = -2.0f/cam->frameBuffer->height;
@@ -121,6 +116,11 @@ im2DRenderPrimitive(PrimitiveType primType, void *vertices, int32 numVertices)
 
 	flushCache();
 	glUniform4fv(currentShader->uniformLocations[u_xform], 1, xform);
+	
+	memcpy_neon(gVertexBufferIm2D, vertices, numVertices*sizeof(Im2DVertex));
+	vglVertexAttribPointerMapped(0, gVertexBufferIm2D);
+	vglIndexPointerMapped(gConstIndices);
+	gVertexBufferIm2D += numVertices*(sizeof(Im2DVertex)/sizeof(float));
 	
 	vglDrawObjects(primTypeMap[primType], numVertices, GL_FALSE);
 	
@@ -135,14 +135,6 @@ im2DRenderIndexedPrimitive(PrimitiveType primType,
 	Camera *cam;
 	cam = (Camera*)engine->currentCamera;
 
-	memcpy_neon(gIndicesIm2D, indices, numIndices * 2);
-	vglIndexPointerMapped(gIndicesIm2D);
-	gIndicesIm2D += numIndices;
-	
-	memcpy_neon(gVertexBufferIm2D, vertices, numVertices*sizeof(Im2DVertex));
-	vglVertexAttribPointerMapped(0, gVertexBufferIm2D);
-	gVertexBufferIm2D += numVertices*(sizeof(Im2DVertex)/sizeof(float));
-
 	xform[0] = 2.0f/cam->frameBuffer->width;
 	xform[1] = -2.0f/cam->frameBuffer->height;
 	xform[2] = -1.0f;
@@ -155,6 +147,14 @@ im2DRenderIndexedPrimitive(PrimitiveType primType,
 
 	flushCache();
 	glUniform4fv(currentShader->uniformLocations[u_xform], 1, xform);
+	
+	memcpy_neon(gIndicesIm2D, indices, numIndices * 2);
+	vglIndexPointerMapped(gIndicesIm2D);
+	gIndicesIm2D += numIndices;
+	
+	memcpy_neon(gVertexBufferIm2D, vertices, numVertices*sizeof(Im2DVertex));
+	vglVertexAttribPointerMapped(0, gVertexBufferIm2D);
+	gVertexBufferIm2D += numVertices*(sizeof(Im2DVertex)/sizeof(float));
 		
 	vglDrawObjects(primTypeMap[primType], numIndices, GL_FALSE);
 }
@@ -205,7 +205,7 @@ void
 im3DTransform(void *vertices, int32 numVertices, Matrix *world, uint32 flags)
 {
 	if(world == nil){
-		Matrix ident;
+		static Matrix ident;
 		ident.setIdentity();
 		world = &ident;
 	}
@@ -236,13 +236,12 @@ im3DRenderPrimitive(PrimitiveType primType)
 void
 im3DRenderIndexedPrimitive(PrimitiveType primType, void *indices, int32 numIndices)
 {
+	flushCache();
 	memcpy_neon(gIndicesIm3D, indices, numIndices * 2);
 	vglIndexPointerMapped(gIndicesIm3D);
 	vglVertexAttribPointerMapped(0, gVertexBufferIm3D);
 	gVertexBufferIm3D += num3DVertices*(sizeof(Im3DVertex)/sizeof(float));
 	gIndicesIm3D += numIndices;
-
-	flushCache();
 	vglDrawObjects(primTypeMap[primType], numIndices, GL_FALSE);
 }
 
