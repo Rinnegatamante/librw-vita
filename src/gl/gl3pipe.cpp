@@ -187,9 +187,9 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 			a->type = GL_FLOAT;
 			a->normalized = GL_FALSE;
 			a->offset = stride;
-			stride += 12;
 			a++;
 		}
+		stride += 12;
 
 		// Prelighting
 		if(isPrelit){
@@ -198,9 +198,9 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 			a->type = GL_UNSIGNED_BYTE;
 			a->normalized = GL_TRUE;
 			a->offset = stride;
-			stride += 4;
 			a++;
 		}
+		stride += 4;
 
 		// Texture coordinates
 		for(int32 n = 0; n < geo->numTexCoordSets; n++){
