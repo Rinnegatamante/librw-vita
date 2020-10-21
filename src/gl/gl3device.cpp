@@ -263,39 +263,39 @@ setGlRenderState(uint32 state, uint32 value)
 void
 flushGlRenderState(void)
 {
-	if(oldGlState.blendEnable != curGlState.blendEnable){
+	//if(oldGlState.blendEnable != curGlState.blendEnable){
 		oldGlState.blendEnable = curGlState.blendEnable;
 		(oldGlState.blendEnable ? glEnable : glDisable)(GL_BLEND);
-	}
+	//}
 
-	if(oldGlState.srcblend != curGlState.srcblend ||
-	   oldGlState.destblend != curGlState.destblend){
+	//if(oldGlState.srcblend != curGlState.srcblend ||
+	//   oldGlState.destblend != curGlState.destblend){
 		oldGlState.srcblend = curGlState.srcblend;
 		oldGlState.destblend = curGlState.destblend;
 		glBlendFunc(oldGlState.srcblend, oldGlState.destblend);
-	}
+	//}
 
-	if(oldGlState.depthTest != curGlState.depthTest){
+	//if(oldGlState.depthTest != curGlState.depthTest){
 		oldGlState.depthTest = curGlState.depthTest;
 		(oldGlState.depthTest ? glEnable : glDisable)(GL_DEPTH_TEST);
-	}
-	if(oldGlState.depthFunc != curGlState.depthFunc){
+	//}
+	//if(oldGlState.depthFunc != curGlState.depthFunc){
 		oldGlState.depthFunc = curGlState.depthFunc;
 		glDepthFunc(oldGlState.depthFunc);
-	}
-	if(oldGlState.depthMask != curGlState.depthMask){
+	//}
+	//if(oldGlState.depthMask != curGlState.depthMask){
 		oldGlState.depthMask = curGlState.depthMask;
 		glDepthMask(oldGlState.depthMask);
-	}
+	//}
 
-	if(oldGlState.cullEnable != curGlState.cullEnable){
+	//if(oldGlState.cullEnable != curGlState.cullEnable){
 		oldGlState.cullEnable = curGlState.cullEnable;
 		(oldGlState.cullEnable ? glEnable : glDisable)(GL_CULL_FACE);
-	}
-	if(oldGlState.cullFace != curGlState.cullFace){
+	//}
+	//if(oldGlState.cullFace != curGlState.cullFace){
 		oldGlState.cullFace = curGlState.cullFace;
 		glCullFace(oldGlState.cullFace);
-	}
+	//}
 }
 
 
@@ -872,18 +872,18 @@ Shader *lastShaderUploaded;
 void
 setMaterial(const RGBA &color, const SurfaceProperties &surfaceprops)
 {
-	bool force = lastShaderUploaded != currentShader;
-	if(force || !equal(shaderState.matColor, color)){
+	//bool force = lastShaderUploaded != currentShader;
+	//if(force || !equal(shaderState.matColor, color)){
 		rw::RGBAf col;
 		convColor(&col, &color);
 		glUniform4fv(U(u_matColor), 1, (GLfloat*)&col);
 		shaderState.matColor = color;
-	}
+	//}
 
-	if(force ||
-	   shaderState.surfProps.ambient != surfaceprops.ambient ||
-	   shaderState.surfProps.specular != surfaceprops.specular ||
-	   shaderState.surfProps.diffuse != surfaceprops.diffuse){
+	//if(force ||
+	//   shaderState.surfProps.ambient != surfaceprops.ambient ||
+	//   shaderState.surfProps.specular != surfaceprops.specular ||
+	//   shaderState.surfProps.diffuse != surfaceprops.diffuse){
 		float surfProps[4];
 		surfProps[0] = surfaceprops.ambient;
 		surfProps[1] = surfaceprops.specular;
@@ -891,7 +891,7 @@ setMaterial(const RGBA &color, const SurfaceProperties &surfaceprops)
 		surfProps[3] = 0.0f;
 		glUniform4fv(U(u_surfProps), 1, surfProps);
 		shaderState.surfProps = surfaceprops;
-	}
+	//}
 }
 
 void
@@ -921,7 +921,7 @@ flushCache(void)
 		glUniformMatrix4fv(U(u_world), 1, 0, (float*)&uniformObject.world);
 		glUniform4fv(U(u_ambLight), 1, (float*)&uniformObject.ambLight);
 		glUniform4fv(U(u_lightParams), MAX_LIGHTS, (float*)uniformObject.lightParams);
-		glUniform4fv(U(u_lightPosition), MAX_LIGHTS, (float*)uniformObject.lightPosition);
+		//glUniform4fv(U(u_lightPosition), MAX_LIGHTS, (float*)uniformObject.lightPosition);
 		glUniform4fv(U(u_lightDirection), MAX_LIGHTS, (float*)uniformObject.lightDirection);
 		glUniform4fv(U(u_lightColor), MAX_LIGHTS, (float*)uniformObject.lightColor);
 	//	objectDirty = 0;
@@ -961,14 +961,14 @@ flushCache(void)
 				uniformState.fogDisable
 			};
 			glUniform4fv(U(u_fogData), 1, fogData);
-			uniformStateDirty[RWGL_FOG] = false;
-			uniformStateDirty[RWGL_FOGSTART] = false;
-			uniformStateDirty[RWGL_FOGEND] = false;
+		//	uniformStateDirty[RWGL_FOG] = false;
+		//	uniformStateDirty[RWGL_FOGSTART] = false;
+		//	uniformStateDirty[RWGL_FOGEND] = false;
 		//}
 
 		//if(uniformStateDirty[RWGL_FOGCOLOR]){
 			glUniform4fv(U(u_fogColor), 1, (float*)&uniformState.fogColor);
-			uniformStateDirty[RWGL_FOGCOLOR] = false;
+		//	uniformStateDirty[RWGL_FOGCOLOR] = false;
 		//}
 }
 
@@ -1323,7 +1323,23 @@ openGLFW(EngineOpenParams *openparams)
 	glGlobals.winHeight = openparams->height;
 	glGlobals.winTitle = openparams->windowtitle;
 
-	vglInitExtended(0x1400000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
+	gVertexBufferIm2DPtr = (float*)malloc(0x500000);
+	gVertexBufferIm3DPtr = (float*)malloc(0x1800000);
+	gIndicesIm2DPtr   = (uint16_t*)malloc(0x600000);
+	gIndicesIm3DPtr   = (uint16_t*)malloc(0x1800000);
+
+	gConstIndices = (uint16_t*)malloc(sizeof(uint16_t) * 0xFFFF);
+	
+	gVertexBufferIm2D = gVertexBufferIm2DPtr;
+	gVertexBufferIm3D = gVertexBufferIm3DPtr;
+	gIndicesIm2D = gIndicesIm2DPtr;
+	gIndicesIm3D = gIndicesIm3DPtr;
+	
+	for (uint16_t i = 0; i < 0xFFFF; i++) {
+		gConstIndices[i] = i;
+	}
+
+	vglInitExtended(0x10000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
 	vglUseVram(GL_TRUE);
 	vglStartRendering();
 
@@ -1410,22 +1426,6 @@ initOpenGL(void)
 	             0, GL_RGBA, GL_UNSIGNED_BYTE, &whitepixel);
 
 	resetRenderState();
-
-	gVertexBufferIm2DPtr = (float*)malloc(0x500000);
-	gVertexBufferIm3DPtr = (float*)malloc(0x1800000);
-	gIndicesIm2DPtr   = (uint16_t*)malloc(0x600000);
-	gIndicesIm3DPtr   = (uint16_t*)malloc(0x1800000);
-
-	gConstIndices = (uint16_t*)malloc(sizeof(uint16_t) * 0xFFFF);
-	
-	gVertexBufferIm2D = gVertexBufferIm2DPtr;
-	gVertexBufferIm3D = gVertexBufferIm3DPtr;
-	gIndicesIm2D = gIndicesIm2DPtr;
-	gIndicesIm3D = gIndicesIm3DPtr;
-	
-	for (uint16_t i = 0; i < 0xFFFF; i++) {
-		gConstIndices[i] = i;
-	}
 	
 #ifdef RW_GLES2
 #include "gl2_shaders/default_vs_gl2.inc"
