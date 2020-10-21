@@ -23,7 +23,7 @@ namespace gl3 {
 void
 drawInst_simple(InstanceDataHeader *header, InstanceData *inst)
 {
-	vglIndexPointerMapped(header->indexBuffer + inst->offset);
+	vglIndexPointerMapped((uint8_t*)header->indexBuffer + inst->offset);
 	vglVertexAttribPointerMapped(0, header->vertexBuffer);
 	vglDrawObjects(header->primType, inst->numIndex, GL_FALSE);
 }
