@@ -4,7 +4,7 @@ void main(
 	fixed4 in_color,
 	half2 in_tex0,
 	float4 in_weights,
-	fixed4 in_indices,
+	float4 in_indices,
 	uniform float4x4 u_wvp,
 	uniform float4x4 u_world,
 	uniform half4 u_ambLight,
@@ -20,12 +20,13 @@ void main(
 	fixed out v_fog : FOG,
 	float4 out gl_Position : POSITION
 ) {
-	float3 SkinVertex = float3(0.0, 0.0, 0.0);
-	float3 SkinNormal = float3(0.0, 0.0, 0.0);
-	for(int i = 0; i < 4; i++){
-		SkinVertex += (mul(float4(in_pos, 1.0), u_boneMatrices[int(in_indices[i])])).xyz * in_weights[i];
-		SkinNormal += mul(in_normal, float3x3(u_boneMatrices[int(in_indices[i])])) * in_weights[i];
-	}
+	float4x4 Skin = u_boneMatrices[(int)in_indices.x] * in_weights.x
+		+ u_boneMatrices[(int)in_indices.y] * in_weights.y
+		+ u_boneMatrices[(int)in_indices.z] * in_weights.z
+		+ u_boneMatrices[(int)in_indices.w] * in_weights.w;
+		
+	float3 SkinVertex = (mul(float4(in_pos, 1.f), Skin)).xyz;
+	float3 SkinNormal = (mul(float4(in_normal, 0.f), Skin)).xyz;
 	
 	gl_Position = mul(float4(SkinVertex, 1.0), u_wvp);
 	float3 Normal = mul(SkinNormal, float3x3(u_world));
