@@ -19,6 +19,8 @@ namespace gl3 {
 
 int32 nativeRasterOffset;
 
+#define RW_GLES
+
 #ifdef RW_OPENGL
 static Raster*
 rasterCreateTexture(Raster *raster)
@@ -56,7 +58,7 @@ rasterCreateTexture(Raster *raster)
 
 #ifdef RW_GLES
 	// glReadPixels only supports GL_RGBA
-	natras->internalFormat = GL_RGBA8;
+	natras->internalFormat = GL_RGBA;
 	natras->format = GL_RGBA;
 	natras->type = GL_UNSIGNED_BYTE;
 	natras->bpp = 4;
@@ -111,13 +113,13 @@ rasterCreateCameraTexture(Raster *raster)
 		natras->bpp = 2;
 		break;
 	}
-
+	
 #ifdef RW_GLES
 	// glReadPixels only supports GL_RGBA
-//	natras->internalFormat = GL_RGBA8;
-//	natras->format = GL_RGBA;
-//	natras->type = GL_UNSIGNED_BYTE;
-//	natras->bpp = 4;
+	natras->internalFormat = GL_RGBA;
+	natras->format = GL_RGBA;
+	natras->type = GL_UNSIGNED_BYTE;
+	natras->bpp = 4;
 #endif
 
 	raster->stride = raster->width*natras->bpp;
@@ -251,6 +253,8 @@ rasterCreate(Raster *raster)
 	}
 }
 
+#define ALIGN(x, a) (((x) + ((a)-1)) & ~((a)-1))
+
 uint8*
 rasterLock(Raster *raster, int32 level, int32 lockMode)
 {
@@ -271,7 +275,14 @@ memset(px, 0, raster->stride*raster->height);
 
 		if(lockMode & Raster::LOCKREAD || !(lockMode & Raster::LOCKNOFETCH)){
 			uint32 prev = bindTexture(natras->texid);
-			memcpy_neon(px, vglGetTexDataPointer(GL_TEXTURE_2D), raster->stride*raster->height);
+			int y = 0;
+			uint8_t *p = (uint8_t*)vglGetTexDataPointer(GL_TEXTURE_2D);
+			uint32_t internal_stride = ALIGN(raster->width, 8) * natras->bpp;
+			while (y < raster->height) {
+				memcpy_neon(px, p, raster->stride);
+				px += internal_stride;
+				y++;
+			}
 			bindTexture(prev);
 		}
 
@@ -302,6 +313,9 @@ rasterUnlock(Raster *raster, int32 level)
 		glTexImage2D(GL_TEXTURE_2D, level, natras->internalFormat,
 			     raster->width, raster->height,
 			     0, natras->format, natras->type, raster->pixels);
+#ifdef PSP2_MIPMAPS
+		glGenerateMipmap(GL_TEXTURE_2D);
+#endif
 		bindTexture(prev);
 	}
 

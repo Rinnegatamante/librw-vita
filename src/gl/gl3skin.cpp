@@ -275,11 +275,11 @@ skinRenderCB(Atomic *atomic, InstanceDataHeader *header)
 		
 		rw::SetRenderState(VERTEXALPHA, inst->vertexAlpha || m->color.alpha != 0xFF);
 		
-		flushCache();
-
-		setMaterial(m->color, m->surfaceProps);
-
 		setTexture(0, m->texture);
+		
+		setMaterial(m->color, m->surfaceProps);
+		
+		flushCache();
 		
 		uploadSkinMatrices(atomic);
 		

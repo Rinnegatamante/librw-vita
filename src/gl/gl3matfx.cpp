@@ -38,12 +38,12 @@ matfxDefaultRender(InstanceDataHeader *header, InstanceData *inst)
 	defaultShader->use();
 	
 	rw::SetRenderState(VERTEXALPHA, inst->vertexAlpha || m->color.alpha != 0xFF);
-
-	flushCache();
-
-	setMaterial(m->color, m->surfaceProps);
-
+	
 	setTexture(0, m->texture);
+	
+	setMaterial(m->color, m->surfaceProps);
+	
+	flushCache();
 
 	drawInst(header, inst);
 }
@@ -94,13 +94,14 @@ matfxEnvRender(InstanceDataHeader *header, InstanceData *inst, MatFX::Env *env)
 	rw::SetRenderState(VERTEXALPHA, 1);
 	rw::SetRenderState(SRCBLEND, BLENDONE);
 	
-	flushCache();
-
 	setTexture(0, m->texture);
 	setTexture(1, env->tex);
-	uploadEnvMatrix(env->frame);
-
+	
 	setMaterial(m->color, m->surfaceProps);
+	
+	flushCache();
+
+	uploadEnvMatrix(env->frame);
 
 	float fxparams[2];
 	fxparams[0] = env->coefficient;

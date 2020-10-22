@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <vitashark.h>
 
 #include "../rwbase.h"
 #include "../rwerror.h"
@@ -303,10 +304,10 @@ flushGlRenderState(void)
 void
 setAlphaBlend(bool32 enable)
 {
-	if(rwStateCache.blendEnable != enable){
+	//if(rwStateCache.blendEnable != enable){
 		rwStateCache.blendEnable = enable;
 		setGlRenderState(RWGL_BLEND, enable);
-	}
+	//}
 }
 
 bool32
@@ -417,16 +418,31 @@ bindFramebuffer(uint32 fbo)
 }
 
 // TODO: support mipmaps
+#ifdef PSP2_MIPMAPS
+static GLint filterConvMap_NoMIP[] = {
+	0, GL_NEAREST, GL_NEAREST_MIPMAP_LINEAR,
+	   GL_NEAREST, GL_NEAREST_MIPMAP_LINEAR,
+	   GL_NEAREST, GL_NEAREST_MIPMAP_LINEAR
+};
+#else
 static GLint filterConvMap_NoMIP[] = {
 	0, GL_NEAREST, GL_LINEAR,
 	   GL_NEAREST, GL_LINEAR,
 	   GL_NEAREST, GL_LINEAR
 };
+#endif
 
+#ifdef PSP2
+static GLint addressConvMap[] = {
+	0, GL_REPEAT, GL_REPEAT,
+	GL_REPEAT, GL_REPEAT
+};
+#else
 static GLint addressConvMap[] = {
 	0, GL_REPEAT, GL_MIRRORED_REPEAT,
 	GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE
 };
+#endif
 
 static void
 setFilterMode(uint32 stage, int32 filter)
@@ -869,14 +885,15 @@ Shader *lastShaderUploaded;
 
 #define U(i) currentShader->uniformLocations[i]
 
+rw::RGBAf matColorCache;
+float surfPropsCache[4];
+
 void
 setMaterial(const RGBA &color, const SurfaceProperties &surfaceprops)
 {
 	//bool force = lastShaderUploaded != currentShader;
 	//if(force || !equal(shaderState.matColor, color)){
-		rw::RGBAf col;
-		convColor(&col, &color);
-		glUniform4fv(U(u_matColor), 1, (GLfloat*)&col);
+		convColor(&matColorCache, &color);
 		shaderState.matColor = color;
 	//}
 
@@ -884,12 +901,10 @@ setMaterial(const RGBA &color, const SurfaceProperties &surfaceprops)
 	//   shaderState.surfProps.ambient != surfaceprops.ambient ||
 	//   shaderState.surfProps.specular != surfaceprops.specular ||
 	//   shaderState.surfProps.diffuse != surfaceprops.diffuse){
-		float surfProps[4];
-		surfProps[0] = surfaceprops.ambient;
-		surfProps[1] = surfaceprops.specular;
-		surfProps[2] = surfaceprops.diffuse;
-		surfProps[3] = 0.0f;
-		glUniform4fv(U(u_surfProps), 1, surfProps);
+		surfPropsCache[0] = surfaceprops.ambient;
+		surfPropsCache[1] = surfaceprops.specular;
+		surfPropsCache[2] = surfaceprops.diffuse;
+		surfPropsCache[3] = 0.0f;
 		shaderState.surfProps = surfaceprops;
 	//}
 }
@@ -899,6 +914,9 @@ flushCache(void)
 {
 	flushGlRenderState();
 
+	glUniform4fv(U(u_matColor), 1, (GLfloat*)&matColorCache);
+	glUniform4fv(U(u_surfProps), 1, surfPropsCache);
+		
 	// TODO: this is probably a stupid way to do it without UBOs
 	/*if(lastShaderUploaded != currentShader){
 		lastShaderUploaded = currentShader;
@@ -1340,6 +1358,7 @@ openGLFW(EngineOpenParams *openparams)
 	}
 
 	vglInitExtended(0x10000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
+	vglSetupRuntimeShaderCompiler(SHARK_OPT_UNSAFE, SHARK_ENABLE, SHARK_ENABLE, SHARK_ENABLE);
 	vglUseVram(GL_TRUE);
 	vglStartRendering();
 

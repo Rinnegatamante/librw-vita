@@ -64,9 +64,11 @@ drawInst_GSemu(InstanceDataHeader *header, InstanceData *inst)
 void
 drawInst(InstanceDataHeader *header, InstanceData *inst)
 {
+#ifndef PSP2
 	if(rw::GetRenderState(rw::GSALPHATEST))
 		drawInst_GSemu(header, inst);
 	else
+#endif
 		drawInst_simple(header, inst);
 }
 
@@ -132,11 +134,11 @@ defaultRenderCB(Atomic *atomic, InstanceDataHeader *header)
 
 		rw::SetRenderState(VERTEXALPHA, inst->vertexAlpha || m->color.alpha != 0xFF);
 		
-		flushCache();
+		setTexture(0, m->texture);
 		
 		setMaterial(m->color, m->surfaceProps);
-
-		setTexture(0, m->texture);
+		
+		flushCache();
 
 		drawInst(header, inst);
 		inst++;
