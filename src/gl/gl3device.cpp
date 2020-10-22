@@ -3,7 +3,9 @@
 #include <string.h>
 #include <assert.h>
 #include <vitashark.h>
-
+extern "C"{
+#include <math_neon.h>
+};
 #include "../rwbase.h"
 #include "../rwerror.h"
 #include "../rwplg.h"
@@ -131,8 +133,7 @@ int32 u_fogData;
 int32 u_fogColor;
 
 // Scene
-int32 u_proj;
-int32 u_view;
+int32 u_wvp;
 
 // Object
 int32 u_world;
@@ -929,14 +930,14 @@ flushCache(void)
 			uniformStateDirty[i] = true;
 	}*/
 
-	//if(sceneDirty){
-		glUniformMatrix4fv(U(u_proj), 1, 0, uniformScene.proj);
-		glUniformMatrix4fv(U(u_view), 1, 0, uniformScene.view);
-	//	sceneDirty = 0;
-	//}
-
 	//if(objectDirty){
 		glUniformMatrix4fv(U(u_world), 1, 0, (float*)&uniformObject.world);
+		
+		float wv[16], wvp[16];
+		matmul4_neon((float *)uniformScene.view, (float *)&uniformObject.world, (float *)wv);
+		matmul4_neon((float *)uniformScene.proj, (float *)wv, (float *)wvp);
+		glUniformMatrix4fv(U(u_wvp), 1, 0, (float*)wvp);
+		
 		glUniform4fv(U(u_ambLight), 1, (float*)&uniformObject.ambLight);
 		glUniform4fv(U(u_lightParams), MAX_LIGHTS, (float*)uniformObject.lightParams);
 		//glUniform4fv(U(u_lightPosition), MAX_LIGHTS, (float*)uniformObject.lightPosition);
@@ -1414,8 +1415,7 @@ initOpenGL(void)
 //	u_fogRange = registerUniform("u_fogRange");
 //	u_fogDisable = registerUniform("u_fogDisable");
 	u_fogColor = registerUniform("u_fogColor");
-	u_proj = registerUniform("u_proj");
-	u_view = registerUniform("u_view");
+	u_wvp = registerUniform("u_wvp");
 	u_world = registerUniform("u_world");
 	u_ambLight = registerUniform("u_ambLight");
 	u_lightParams = registerUniform("u_lightParams");

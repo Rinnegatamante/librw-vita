@@ -2,7 +2,7 @@
 #define disableFBA (u_fxparams.y)
 
 float4 main(
-	float4 v_color : COLOR,
+	float4 v_color : COLOR0,
 	float2 v_tex0 : TEXCOORD0,
 	float2 v_tex1 : TEXCOORD1,
 	float v_fog : FOG,

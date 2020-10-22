@@ -5,9 +5,8 @@ void main(
 	float2 in_tex0,
 	float4 in_weights,
 	float4 in_indices,
-	uniform float4x4 u_proj,
+	uniform float4x4 u_wvp,
 	uniform float4x4 u_world,
-	uniform float4x4 u_view,
 	uniform float4 u_ambLight,
 	uniform float4 u_surfProps,
 	uniform float4 u_fogData,
@@ -28,8 +27,7 @@ void main(
 		SkinNormal += mul(in_normal, float3x3(u_boneMatrices[int(in_indices[i])])) * in_weights[i];
 	}
 	
-	float4 Vertex = mul(float4(SkinVertex, 1.0), u_world);
-	gl_Position = mul(mul(Vertex, u_view), u_proj);
+	gl_Position = mul(float4(SkinVertex, 1.0), u_wvp);
 	float3 Normal = mul(SkinNormal, float3x3(u_world));
 
 	v_tex0 = in_tex0;

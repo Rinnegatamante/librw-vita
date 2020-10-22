@@ -1,6 +1,6 @@
 const char *simple_frag_src =
 "float4 main(\n"
-"	float4 v_color : COLOR,\n"
+"	float4 v_color : COLOR0,\n"
 "	float2 v_tex0 : TEXCOORD0,\n"
 "	float v_fog : FOG,\n"
 "	uniform float4 u_fogColor,\n"

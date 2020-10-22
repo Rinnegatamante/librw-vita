@@ -3,9 +3,8 @@ void main(
 	float3 in_normal,
 	float4 in_color,
 	float2 in_tex0,
-	uniform float4x4 u_proj,
+	uniform float4x4 u_wvp,
 	uniform float4x4 u_world,
-	uniform float4x4 u_view,
 	uniform float4 u_ambLight,
 	uniform float4 u_surfProps,
 	uniform float4 u_fogData,
@@ -18,8 +17,7 @@ void main(
 	float out v_fog : FOG,
 	float4 out gl_Position : POSITION
 ) {
-	float4 Vertex = mul(float4(in_pos, 1.0), u_world);
-	gl_Position = mul(mul(Vertex, u_view), u_proj);
+	gl_Position = mul(float4(in_pos, 1.0), u_wvp);
 	float3 Normal = mul(in_normal, float3x3(u_world));
 
 	v_tex0 = in_tex0;

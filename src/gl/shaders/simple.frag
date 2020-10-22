@@ -1,5 +1,5 @@
 float4 main(
-	float4 v_color : COLOR,
+	float4 v_color : COLOR0,
 	float2 v_tex0 : TEXCOORD0,
 	float v_fog : FOG,
 	uniform float4 u_fogColor,
