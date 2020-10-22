@@ -201,16 +201,19 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 			a++;
 		}
 		stride += 4;
-
-		// Texture coordinates
-		for(int32 n = 0; n < geo->numTexCoordSets; n++){
-			a->index = ATTRIB_TEXCOORDS0+n;
-			a->size = 2;
-			a->type = GL_FLOAT;
-			a->normalized = GL_FALSE;
-			a->offset = stride;
-			stride += 8;
-			a++;
+		
+		if (geo->numTexCoordSets <= 0) stride += 8;
+		else {
+			// Texture coordinates
+			for(int32 n = 0; n < geo->numTexCoordSets; n++){
+				a->index = ATTRIB_TEXCOORDS0+n;
+				a->size = 2;
+				a->type = GL_FLOAT;
+				a->normalized = GL_FALSE;
+				a->offset = stride;
+				stride += 8;
+				a++;
+			}
 		}
 
 		header->numAttribs = a - tmpAttribs;
@@ -252,6 +255,13 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 		instV3d(VERT_FLOAT3, verts + a->offset,
 			geo->morphTargets[0].normals,
 			header->totalNumVertex, a->stride);
+	} else if (!hasNormals) {
+		int i = 0;
+		while (i < header->totalNumVertex) {
+			float *verts_f = (float*)&verts[12 + i * 36];
+			verts_f[0] = verts_f[1] = verts_f[2] = 0;
+			i++;
+		}
 	}
 
 	// Prelighting
@@ -267,6 +277,15 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 				geo->colors + inst->minVert,
 				inst->numVertices, a->stride);
 			inst++;
+		}
+	} else if (!isPrelit) {
+		int i = 0;
+		while (i < header->totalNumVertex) {
+			verts[24 + i * 36] = 0;
+			verts[25 + i * 36] = 0;
+			verts[26 + i * 36] = 0;
+			verts[27 + i * 36] = 255;
+			i++;
 		}
 	}
 
