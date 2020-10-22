@@ -64,6 +64,10 @@ rasterCreateTexture(Raster *raster)
 	natras->bpp = 4;
 #endif
 
+#ifndef PSP2_NO_DXT_TEXTURES
+	natras->internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+#endif
+
 	raster->stride = raster->width*natras->bpp;
 
 	glGenTextures(1, &natras->texid);
@@ -120,6 +124,10 @@ rasterCreateCameraTexture(Raster *raster)
 	natras->format = GL_RGBA;
 	natras->type = GL_UNSIGNED_BYTE;
 	natras->bpp = 4;
+#endif
+
+#ifndef PSP2_NO_DXT_TEXTURES
+	natras->internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 #endif
 
 	raster->stride = raster->width*natras->bpp;
