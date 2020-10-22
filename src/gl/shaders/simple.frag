@@ -1,12 +1,12 @@
 float4 main(
-	float4 v_color : COLOR0,
-	float2 v_tex0 : TEXCOORD0,
-	float v_fog : FOG,
-	uniform float4 u_fogColor,
-	uniform float2 u_alphaRef,
+	half4 v_color : COLOR0,
+	half2 v_tex0 : TEXCOORD0,
+	fixed v_fog : FOG,
+	uniform half4 u_fogColor,
+	uniform half2 u_alphaRef,
 	uniform sampler2D tex0
 ) {
-	float4 color = v_color*tex2D(tex0, float2(v_tex0.x, 1.0-v_tex0.y));
+	half4 color = v_color*tex2D(tex0, half2(v_tex0.x, 1.0-v_tex0.y));
 	color.rgb = lerp(u_fogColor.rgb, color.rgb, v_fog);
 	DoAlphaTest(color.a, u_alphaRef);
 	

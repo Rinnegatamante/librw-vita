@@ -1,23 +1,23 @@
 void main(
 	float3 in_pos,
 	float3 in_normal,
-	float4 in_color,
-	float2 in_tex0,
+	fixed4 in_color,
+	half2 in_tex0,
 	float4 in_weights,
-	float4 in_indices,
+	fixed4 in_indices,
 	uniform float4x4 u_wvp,
 	uniform float4x4 u_world,
-	uniform float4 u_ambLight,
-	uniform float4 u_surfProps,
-	uniform float4 u_fogData,
-	uniform float4 u_matColor,
-	uniform float4 u_lightParams[MAX_LIGHTS],
-	uniform float4 u_lightDirection[MAX_LIGHTS],
-	uniform float4 u_lightColor[MAX_LIGHTS],
+	uniform half4 u_ambLight,
+	uniform half4 u_surfProps,
+	uniform half4 u_fogData,
+	uniform half4 u_matColor,
+	uniform half4 u_lightParams[MAX_LIGHTS],
+	uniform half4 u_lightDirection[MAX_LIGHTS],
+	uniform half4 u_lightColor[MAX_LIGHTS],
 	uniform float4x4 u_boneMatrices[64],
-	float4 out v_color : COLOR0,
-	float2 out v_tex0 : TEXCOORD0,
-	float out v_fog : FOG,
+	half4 out v_color : COLOR0,
+	half2 out v_tex0 : TEXCOORD0,
+	fixed out v_fog : FOG,
 	float4 out gl_Position : POSITION
 ) {
 	float3 SkinVertex = float3(0.0, 0.0, 0.0);
@@ -35,13 +35,13 @@ void main(
 	v_color = in_color;
 	v_color.rgb += u_ambLight.rgb*surfAmbient;
 	
-	float3 color = float3(0.0, 0.0, 0.0);
+	half3 color = half3(0.0, 0.0, 0.0);
 	for(int i = 0; i < MAX_LIGHTS; i++){
 		if(u_lightParams[i].x == 0.0)
 			break;
 		if(u_lightParams[i].x == 1.0){
 			// direct
-			float l = max(0.0, dot(Normal, -u_lightDirection[i].xyz));
+			fixed l = max(0.0, dot(Normal, -u_lightDirection[i].xyz));
 			color += l*u_lightColor[i].rgb;
 		}
 	}

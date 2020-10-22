@@ -9,7 +9,7 @@
 #define surfSpecular (u_surfProps.y)
 #define surfDiffuse (u_surfProps.z)
 
-float DoFog(float w, float4 u_fogData)
+fixed DoFog(float w, half4 u_fogData)
 {
 	return clamp((w - u_fogEnd)*u_fogRange, u_fogDisable, 1.0);
 }

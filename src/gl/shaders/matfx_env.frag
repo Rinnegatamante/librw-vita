@@ -2,27 +2,27 @@
 #define disableFBA (u_fxparams.y)
 
 float4 main(
-	float4 v_color : COLOR0,
-	float2 v_tex0 : TEXCOORD0,
-	float2 v_tex1 : TEXCOORD1,
-	float v_fog : FOG,
-	uniform float4 u_fogColor,
-	uniform float2 u_alphaRef,
-	uniform float4 u_colorClamp,
-	uniform float2 u_fxparams,
+	half4 v_color : COLOR0,
+	half2 v_tex0 : TEXCOORD0,
+	half2 v_tex1 : TEXCOORD1,
+	fixed v_fog : FOG,
+	uniform half4 u_fogColor,
+	uniform half2 u_alphaRef,
+	uniform half4 u_colorClamp,
+	uniform half2 u_fxparams,
 	uniform sampler2D tex0 : TEXUNIT0,
 	uniform sampler2D tex1 : TEXUNIT1
 ) {
-	float4 pass1 = v_color;
-	float4 envColor = max(pass1, u_colorClamp);
-	pass1 *= tex2D(tex0, float2(v_tex0.x, 1.0-v_tex0.y));
+	half4 pass1 = v_color;
+	half4 envColor = max(pass1, u_colorClamp);
+	pass1 *= tex2D(tex0, half2(v_tex0.x, 1.0-v_tex0.y));
 
-	float4 pass2 = envColor*shininess*tex2D(tex1, float2(v_tex1.x, 1.0-v_tex1.y));
+	half4 pass2 = envColor*shininess*tex2D(tex1, half2(v_tex1.x, 1.0-v_tex1.y));
 
 	pass1.rgb = lerp(u_fogColor.rgb, pass1.rgb, v_fog);
-	pass2.rgb = lerp(float3(0.0, 0.0, 0.0), pass2.rgb, v_fog);
+	pass2.rgb = lerp(half3(0.0, 0.0, 0.0), pass2.rgb, v_fog);
 	
-	float fba = max(pass1.a, disableFBA);
+	half fba = max(pass1.a, disableFBA);
 	float4 color;
 	color.rgb = pass1.rgb*pass1.a + pass2.rgb*fba;
 	color.a = pass1.a;

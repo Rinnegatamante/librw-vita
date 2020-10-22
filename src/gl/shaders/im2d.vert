@@ -1,12 +1,12 @@
 void main(
 	float4 in_pos,
-	float4 in_color,
-	float2 in_tex0,
-	uniform float4 u_fogData,
+	half4 in_color,
+	half2 in_tex0,
+	uniform half4 u_fogData,
 	uniform float4 u_xform,
-	float4 out v_color : COLOR0,
-	float2 out v_tex0 : TEXCOORD0,
-	float out v_fog : FOG,
+	half4 out v_color : COLOR0,
+	half2 out v_tex0 : TEXCOORD0,
+	fixed out v_fog : FOG,
 	float4 out gl_Position : POSITION
 ) {
 	gl_Position = in_pos;

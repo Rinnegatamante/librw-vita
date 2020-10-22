@@ -3,7 +3,7 @@
 #define u_fogRange (u_fogData.z)
 #define u_fogDisable (u_fogData.w)
 
-void DoAlphaTest(float a, float2 u_alphaRef)
+void DoAlphaTest(float a, half2 u_alphaRef)
 {
 	if(a < u_alphaRef.x || a >= u_alphaRef.y)
 		discard;

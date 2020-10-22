@@ -10,7 +10,7 @@ const char *header_vert_src =
 "#define surfSpecular (u_surfProps.y)\n"
 "#define surfDiffuse (u_surfProps.z)\n"
 
-"float DoFog(float w, float4 u_fogData)\n"
+"fixed DoFog(float w, half4 u_fogData)\n"
 "{\n"
 "	return clamp((w - u_fogEnd)*u_fogRange, u_fogDisable, 1.0);\n"
 "}\n"
