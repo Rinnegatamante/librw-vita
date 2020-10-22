@@ -9,7 +9,6 @@ const char *skin_vert_src =
 "	uniform float4x4 u_proj,\n"
 "	uniform float4x4 u_world,\n"
 "	uniform float4x4 u_view,\n"
-"	uniform float4x4 u_texMatrix,\n"
 "	uniform float4 u_ambLight,\n"
 "	uniform float4 u_surfProps,\n"
 "	uniform float4 u_fogData,\n"

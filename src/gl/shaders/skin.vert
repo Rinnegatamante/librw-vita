@@ -8,7 +8,6 @@ void main(
 	uniform float4x4 u_proj,
 	uniform float4x4 u_world,
 	uniform float4x4 u_view,
-	uniform float4x4 u_texMatrix,
 	uniform float4 u_ambLight,
 	uniform float4 u_surfProps,
 	uniform float4 u_fogData,
