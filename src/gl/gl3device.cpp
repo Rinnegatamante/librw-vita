@@ -1212,7 +1212,7 @@ rasterRenderFast(Raster *raster, int32 x, int32 y)
 				pParam.base, 0, 0, 960 * 4,
 				SCE_GXM_TRANSFER_FORMAT_U8U8U8_BGR,
 				SCE_GXM_TRANSFER_LINEAR,
-				(uint8_t*)vglGetTexDataPointer(GL_TEXTURE_2D) + 1023 * 1024 * 3, 0, 0, - 1024 * 3,
+				(uint8_t*)vglGetTexDataPointer(GL_TEXTURE_2D) + (dst->height - 1) * dst->stride, 0, 0, -dst->stride,
 				NULL, SCE_GXM_TRANSFER_FRAGMENT_SYNC, NULL);
 			glBindTexture(GL_TEXTURE_2D, boundTexture[0]);
 			return 1;

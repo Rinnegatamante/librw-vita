@@ -119,7 +119,6 @@ rasterCreateCameraTexture(Raster *raster)
 	}
 	
 #ifdef RW_GLES
-	// glReadPixels only supports GL_RGBA
 	natras->internalFormat = GL_RGB;
 	natras->format = GL_RGB;
 	natras->type = GL_UNSIGNED_BYTE;
