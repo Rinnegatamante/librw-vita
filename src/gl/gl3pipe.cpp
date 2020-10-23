@@ -256,11 +256,9 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 			geo->morphTargets[0].normals,
 			header->totalNumVertex, a->stride);
 	} else if (!hasNormals) {
-		int i = 0;
-		while (i < header->totalNumVertex) {
+		for (int i = 0; i < header->totalNumVertex; i++) {
 			float *verts_f = (float*)&verts[12 + i * 36];
 			verts_f[0] = verts_f[1] = verts_f[2] = 0;
-			i++;
 		}
 	}
 
@@ -279,13 +277,11 @@ defaultInstanceCB(Geometry *geo, InstanceDataHeader *header, bool32 reinstance)
 			inst++;
 		}
 	} else if (!isPrelit) {
-		int i = 0;
-		while (i < header->totalNumVertex) {
+		for (int i = 0; i < header->totalNumVertex; i++) {
 			verts[24 + i * 36] = 0;
 			verts[25 + i * 36] = 0;
 			verts[26 + i * 36] = 0;
 			verts[27 + i * 36] = 255;
-			i++;
 		}
 	}
 

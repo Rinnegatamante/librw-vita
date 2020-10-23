@@ -120,15 +120,15 @@ rasterCreateCameraTexture(Raster *raster)
 	
 #ifdef RW_GLES
 	// glReadPixels only supports GL_RGBA
-	natras->internalFormat = GL_RGBA;
-	natras->format = GL_RGBA;
+	natras->internalFormat = GL_RGB;
+	natras->format = GL_RGB;
 	natras->type = GL_UNSIGNED_BYTE;
-	natras->bpp = 4;
+	natras->bpp = 3;
 #endif
 
-#ifndef PSP2_NO_DXT_TEXTURES
-	natras->internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-#endif
+//#ifndef PSP2_NO_DXT_TEXTURES
+//	natras->internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+//#endif
 
 	raster->stride = raster->width*natras->bpp;
 

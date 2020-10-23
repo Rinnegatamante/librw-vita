@@ -1202,8 +1202,18 @@ rasterRenderFast(Raster *raster, int32 x, int32 y)
 		case Raster::CAMERA:
 			setActiveTexture(0);
 			glBindTexture(GL_TEXTURE_2D, natdst->texid);
-			/*glCopyTexSubImage2D(GL_TEXTURE_2D, 0, x, (dst->height-src->height)-y,
-				0, 0, src->width, src->height);*/
+			SceDisplayFrameBuf pParam;
+			pParam.size = sizeof(SceDisplayFrameBuf);
+			sceDisplayGetFrameBuf(&pParam, SCE_DISPLAY_SETBUF_NEXTFRAME);
+			sceGxmTransferCopy(960, 544, 0, SCE_GXM_COLOR_MASK_A,
+				SCE_GXM_TRANSFER_COLORKEY_NONE,
+				SCE_GXM_TRANSFER_FORMAT_U8U8U8U8_ABGR,
+				SCE_GXM_TRANSFER_LINEAR,
+				pParam.base, 0, 0, 960 * 4,
+				SCE_GXM_TRANSFER_FORMAT_U8U8U8_BGR,
+				SCE_GXM_TRANSFER_LINEAR,
+				(uint8_t*)vglGetTexDataPointer(GL_TEXTURE_2D) + 1023 * 1024 * 3, 0, 0, - 1024 * 3,
+				NULL, SCE_GXM_TRANSFER_FRAGMENT_SYNC, NULL);
 			glBindTexture(GL_TEXTURE_2D, boundTexture[0]);
 			return 1;
 		}
