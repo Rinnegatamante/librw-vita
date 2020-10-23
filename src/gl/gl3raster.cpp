@@ -285,12 +285,16 @@ memset(px, 0, raster->stride*raster->height);
 			uint32 prev = bindTexture(natras->texid);
 			int y = 0;
 			uint8_t *p = (uint8_t*)vglGetTexDataPointer(GL_TEXTURE_2D);
+#ifdef PSP2_NO_DXT_TEXTURES
 			uint32_t internal_stride = ALIGN(raster->width, 8) * natras->bpp;
 			while (y < raster->height) {
 				memcpy_neon(px, p, raster->stride);
 				px += internal_stride;
 				y++;
-			}
+			}		
+#else
+			memcpy_neon(px, p, raster->width * raster->height);
+#endif
 			bindTexture(prev);
 		}
 
@@ -318,12 +322,17 @@ rasterUnlock(Raster *raster, int32 level)
 
 	if(raster->privateFlags & Raster::LOCKWRITE){
 		uint32 prev = bindTexture(natras->texid);
-		glTexImage2D(GL_TEXTURE_2D, level, natras->internalFormat,
-			     raster->width, raster->height,
-			     0, natras->format, natras->type, raster->pixels);
+		if (raster->privateFlags & Raster::LOCKRAW) {
+			void *p = vglGetTexDataPointer(GL_TEXTURE_2D);
+			memcpy_neon(p, raster->pixels, raster->width * raster->height);
+		} else {	
+			glTexImage2D(GL_TEXTURE_2D, level, natras->internalFormat,
+					raster->width, raster->height,
+					0, natras->format, natras->type, raster->pixels);
 #ifdef PSP2_MIPMAPS
-		glGenerateMipmap(GL_TEXTURE_2D);
+			glGenerateMipmap(GL_TEXTURE_2D);
 #endif
+		}
 		bindTexture(prev);
 	}
 
@@ -602,7 +611,11 @@ readNativeTexture(Stream *stream)
 	for(int32 i = 0; i < numLevels; i++){
 		size = stream->readU32();
 		if(i < raster->getNumLevels()){
+#ifdef PSP2_NO_DXT_TEXTURES
 			data = raster->lock(i, Raster::LOCKWRITE|Raster::LOCKNOFETCH);
+#else
+			data = raster->lock(i, Raster::LOCKWRITE|Raster::LOCKNOFETCH|Raster::LOCKRAW);
+#endif
 			stream->read8(data, size);
 			raster->unlock(i);
 		}else
