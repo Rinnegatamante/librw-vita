@@ -433,17 +433,10 @@ static GLint filterConvMap_NoMIP[] = {
 };
 #endif
 
-#ifdef PSP2
-static GLint addressConvMap[] = {
-	0, GL_REPEAT, GL_REPEAT,
-	GL_REPEAT, GL_REPEAT
-};
-#else
 static GLint addressConvMap[] = {
 	0, GL_REPEAT, GL_MIRRORED_REPEAT,
 	GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE
 };
-#endif
 
 static void
 setFilterMode(uint32 stage, int32 filter)
