@@ -1100,7 +1100,12 @@ beginUpdate(Camera *cam)
 	}
 
 	setFrameBuffer(cam);
-
+	vglStartRendering();
+	gVertexBufferIm2D = gVertexBufferIm2DPtr;
+	gVertexBufferIm3D = gVertexBufferIm3DPtr;
+	gIndicesIm2D = gIndicesIm2DPtr;
+	gIndicesIm3D = gIndicesIm3DPtr;
+	
 	int w, h;
 	if(cam->frameBuffer->type == Raster::CAMERA){
 #ifdef LIBRW_SDL2
@@ -1119,6 +1124,13 @@ beginUpdate(Camera *cam)
 		glGlobals.presentWidth = w;
 		glGlobals.presentHeight = h;
 	}
+}
+
+static
+void
+endUpdate(Camera *cam)
+{
+	vglStopRendering();
 }
 
 void log2file(const char *format, ...) {
@@ -1143,8 +1155,6 @@ clearCamera(Camera *cam, RGBA *col, uint32 mode)
 	RGBAf colf;
 	int mask;
 
-	setFrameBuffer(cam);
-
 	convColor(&colf, col);
 	glClearColor(colf.red, colf.green, colf.blue, colf.alpha);
 	mask = 0;
@@ -1168,12 +1178,6 @@ showRaster(Raster *raster, uint32 flags)
 		vglWaitVblankStart(GL_TRUE);
 	else
 		vglWaitVblankStart(GL_FALSE);
-	vglStopRendering();
-	vglStartRendering();
-	gVertexBufferIm2D = gVertexBufferIm2DPtr;
-	gVertexBufferIm3D = gVertexBufferIm3DPtr;
-	gIndicesIm2D = gIndicesIm2DPtr;
-	gIndicesIm3D = gIndicesIm3DPtr;
 #endif
 	//log2file("showRaster called");
 	
@@ -1570,7 +1574,7 @@ deviceSystemGLFW(DeviceReq req, void *arg, int32 n)
 Device renderdevice = {
 	-1.0f, 1.0f,
 	gl3::beginUpdate,
-	null::endUpdate,
+	gl3::endUpdate,
 	gl3::clearCamera,
 	gl3::showRaster,
 	gl3::rasterRenderFast,
