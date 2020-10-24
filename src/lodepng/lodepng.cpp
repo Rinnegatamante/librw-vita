@@ -28,6 +28,7 @@ The manual and changelog are in the header file "lodepng.h"
 Rename this file to lodepng.cpp to use it for C++, or to lodepng.c to use it for C.
 */
 
+#include <vitaGL.h>
 #include "lodepng.h"
 
 #ifdef LODEPNG_COMPILE_DISK
@@ -117,7 +118,7 @@ void lodepng_free(void* ptr);
 where a full C library is not available. The compiler can recognize them and compile
 to something as fast. */
 
-static void lodepng_memcpy(void* LODEPNG_RESTRICT dst,
+/*static void lodepng_memcpy(void* LODEPNG_RESTRICT dst,
                            const void* LODEPNG_RESTRICT src, size_t size) {
   size_t i;
   for(i = 0; i < size; i++) ((char*)dst)[i] = ((const char*)src)[i];
@@ -129,14 +130,17 @@ static void lodepng_memset(void* LODEPNG_RESTRICT dst,
   for(i = 0; i < num; i++) ((char*)dst)[i] = (char)value;
 }
 
-/* does not check memory out of bounds, do not use on untrusted data */
+ does not check memory out of bounds, do not use on untrusted data
 static size_t lodepng_strlen(const char* a) {
   const char* orig = a;
-  /* avoid warning about unused function in case of disabled COMPILE... macros */
+  /* avoid warning about unused function in case of disabled COMPILE... macros
   (void)(&lodepng_strlen);
   while(*a) a++;
   return (size_t)(a - orig);
-}
+}*/
+#define lodepng_memcpy memcpy_neon
+#define lodepng_memset memset
+#define lodepng_strlen strlen
 
 #define LODEPNG_MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define LODEPNG_MIN(a, b) (((a) < (b)) ? (a) : (b))
