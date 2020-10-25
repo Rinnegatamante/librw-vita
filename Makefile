@@ -10,7 +10,7 @@ PREFIX  = arm-vita-eabi
 CC      = $(PREFIX)-gcc
 CXX		= $(PREFIX)-g++
 AR      = $(PREFIX)-gcc-ar
-CFLAGS  = -g -Wl,-q -fno-optimize-sibling-calls -O2 -ftree-vectorize -fsingle-precision-constant -mfloat-abi=hard -ffast-math \
+CFLAGS  = -g -Wl,-q,--no-enum-size-warning -fno-short-enums -fno-optimize-sibling-calls -O2 -ftree-vectorize -fsingle-precision-constant -mfloat-abi=hard -ffast-math \
 	-DPSP2 -DDEBUG -DRW_GL3 -DLIBRW_GLAD
 CXXFLAGS = $(CFLAGS)
 ASFLAGS = $(CFLAGS)
