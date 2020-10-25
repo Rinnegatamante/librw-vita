@@ -20,10 +20,10 @@ void main(
 	fixed out v_fog : FOG,
 	float4 out gl_Position : POSITION
 ) {
-	float4x4 Skin = u_boneMatrices[(int)in_indices.x] * in_weights.x
-		+ u_boneMatrices[(int)in_indices.y] * in_weights.y
-		+ u_boneMatrices[(int)in_indices.z] * in_weights.z
-		+ u_boneMatrices[(int)in_indices.w] * in_weights.w;
+	float4x4 Skin = u_boneMatrices[(int)(in_indices.x * 255)] * in_weights.x
+		+ u_boneMatrices[(int)(in_indices.y * 255)] * in_weights.y
+		+ u_boneMatrices[(int)(in_indices.z * 255)] * in_weights.z
+		+ u_boneMatrices[(int)(in_indices.w * 255)] * in_weights.w;
 		
 	float3 SkinVertex = (mul(float4(in_pos, 1.f), Skin)).xyz;
 	float3 SkinNormal = (mul(float4(in_normal, 0.f), Skin)).xyz;

@@ -1368,7 +1368,6 @@ openGLFW(EngineOpenParams *openparams)
 	vglInitExtended(0x10000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
 	vglSetupRuntimeShaderCompiler(SHARK_OPT_UNSAFE, SHARK_ENABLE, SHARK_ENABLE, SHARK_ENABLE);
 	vglUseVram(GL_TRUE);
-	vglStartRendering();
 
 	makeVideoModeList();
 
