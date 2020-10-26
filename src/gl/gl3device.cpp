@@ -18,6 +18,8 @@ extern "C"{
 #include "rwgl3shader.h"
 #include "rwgl3impl.h"
 
+#include "psp2_shaders.h"
+
 #define PLUGIN_ID 0
 
 uint16_t *gIndicesIm2DPtr;

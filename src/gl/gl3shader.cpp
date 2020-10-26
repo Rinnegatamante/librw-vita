@@ -16,12 +16,14 @@
 namespace rw {
 namespace gl3 {
 
+#ifdef PSP2_USE_SHADER_COMPILER
 #ifdef RW_GLES2
 #include "gl2_shaders/header_vs.inc"
 #include "gl2_shaders/header_fs.inc"
 #else
 #include "shaders/header_vs.inc"
 #include "shaders/header_fs.inc"
+#endif
 #endif
 
 UniformRegistry uniformRegistry;

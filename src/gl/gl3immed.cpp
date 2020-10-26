@@ -15,6 +15,8 @@
 #include "rwgl3impl.h"
 #include "rwgl3shader.h"
 
+#include "psp2_shaders.h"
+
 extern float *gVertexBufferIm2D;
 extern uint16_t *gIndicesIm2D;
 extern float *gVertexBufferIm3D;

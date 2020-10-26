@@ -18,6 +18,8 @@
 
 #include "rwgl3impl.h"
 
+#include "psp2_shaders.h"
+
 namespace rw {
 namespace gl3 {
 
