@@ -1365,12 +1365,11 @@ openGLFW(EngineOpenParams *openparams)
 		gConstIndices[i] = i;
 	}
 #ifdef PSP2_USE_SHADER_COMPILER
-	vglInitExtended(0x10000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
 	vglSetupRuntimeShaderCompiler(SHARK_OPT_UNSAFE, SHARK_ENABLE, SHARK_ENABLE, SHARK_ENABLE);
 #else
 	vglEnableRuntimeShaderCompiler(GL_FALSE);
-	vglInitExtended(0x10000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
 #endif
+	vglInitExtended(0x10000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
 	vglUseVram(GL_TRUE);
 
 	makeVideoModeList();
