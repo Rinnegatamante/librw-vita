@@ -289,7 +289,7 @@ static void*
 skinOpen(void *o, int32, int32)
 {
 	skinGlobals.pipelines[PLATFORM_GL3] = makeSkinPipeline();
-
+#ifdef PSP2_USE_SHADER_COMPILER	
 #ifdef RW_GLES2
 #include "gl2_shaders/simple_fs_gl2.inc"
 #include "gl2_shaders/skin_gl2.inc"
@@ -300,6 +300,11 @@ skinOpen(void *o, int32, int32)
 	const char *vs[] = { header_vert_src, skin_vert_src, nil };
 	const char *fs[] = { header_frag_src, simple_frag_src, nil };
 	skinShader = Shader::create(vs, fs, false);
+#else
+	const char *vs[] = { (const char*)skin_v, (const char*)&size_skin_v, nil };
+	const char *fs[] = { (const char*)simple_f, (const char*)&size_simple_f, nil };
+	skinShader = Shader::create(vs, fs, false);
+#endif
 	assert(skinShader);
 
 	return o;

@@ -1364,9 +1364,13 @@ openGLFW(EngineOpenParams *openparams)
 	for (uint16_t i = 0; i < 0xFFFF; i++) {
 		gConstIndices[i] = i;
 	}
-
+#ifdef PSP2_USE_SHADER_COMPILER
 	vglInitExtended(0x10000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
 	vglSetupRuntimeShaderCompiler(SHARK_OPT_UNSAFE, SHARK_ENABLE, SHARK_ENABLE, SHARK_ENABLE);
+#else
+	vglEnableRuntimeShaderCompiler(GL_FALSE);
+	vglInitExtended(0x10000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
+#endif
 	vglUseVram(GL_TRUE);
 
 	makeVideoModeList();
@@ -1451,7 +1455,7 @@ initOpenGL(void)
 	             0, GL_RGBA, GL_UNSIGNED_BYTE, &whitepixel);
 
 	resetRenderState();
-	
+#ifdef PSP2_USE_SHADER_COMPILER	
 #ifdef RW_GLES2
 #include "gl2_shaders/default_vs_gl2.inc"
 #include "gl2_shaders/simple_fs_gl2.inc"
@@ -1462,6 +1466,11 @@ initOpenGL(void)
 	const char *vs[] = { header_vert_src, default_vert_src, nil };
 	const char *fs[] = { header_frag_src, simple_frag_src, nil };
 	defaultShader = Shader::create(vs, fs, false);
+#else
+	const char *vs[] = { (const char*)default_v, (const char*)&size_default_v, nil };
+	const char *fs[] = { (const char*)simple_f, (const char*)&size_simple_f, nil };
+	defaultShader = Shader::create(vs, fs, false);
+#endif
 	assert(defaultShader);
 
 	openIm2D();

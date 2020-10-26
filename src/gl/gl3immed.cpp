@@ -55,7 +55,7 @@ void
 openIm2D(void)
 {
 	u_xform = registerUniform("u_xform");
-
+#ifdef PSP2_USE_SHADER_COMPILER
 #ifdef RW_GLES2
 #include "gl2_shaders/im2d_gl2.inc"
 #include "gl2_shaders/simple_fs_gl2.inc"
@@ -66,6 +66,11 @@ openIm2D(void)
 	const char *vs[] = { header_vert_src, im2d_vert_src, nil };
 	const char *fs[] = { header_frag_src, simple_frag_src, nil };
 	im2dShader = Shader::create(vs, fs, true);
+#else
+	const char *vs[] = { (const char*)im2d_v, (const char*)&size_im2d_v, nil };
+	const char *fs[] = { (const char*)simple_f, (const char*)&size_simple_f, nil };
+	im2dShader = Shader::create(vs, fs, true);
+#endif
 	assert(im2dShader);
 }
 
@@ -181,6 +186,7 @@ static int32 num3DVertices;	// not actually needed here
 void
 openIm3D(void)
 {
+#ifdef PSP2_USE_SHADER_COMPILER
 #ifdef RW_GLES2
 #include "gl2_shaders/im3d_gl2.inc"
 #include "gl2_shaders/simple_fs_gl2.inc"
@@ -191,6 +197,11 @@ openIm3D(void)
 	const char *vs[] = { header_vert_src, im3d_vert_src, nil };
 	const char *fs[] = { header_frag_src, simple_frag_src, nil };
 	im3dShader = Shader::create(vs, fs, false);
+#else
+	const char *vs[] = { (const char*)im3d_v, (const char*)&size_im3d_v, nil };
+	const char *fs[] = { (const char*)simple_f, (const char*)&size_simple_f, nil };
+	im3dShader = Shader::create(vs, fs, false);
+#endif
 	assert(im3dShader);
 }
 

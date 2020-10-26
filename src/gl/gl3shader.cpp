@@ -103,8 +103,10 @@ char shader_source_buffer[16 * 1024];
 static int
 compileshader(GLenum type, const char **src, GLuint *shader)
 {
+	GLint shdr = glCreateShader(type);
+#ifdef PSP2_USE_SHADER_COMPILER	
 	GLint n;
-	GLint shdr, success;
+	Glint success;
 	GLint len;
 	char *log;
 	
@@ -116,7 +118,6 @@ compileshader(GLenum type, const char **src, GLuint *shader)
 	
 	const char *_src = (const char*)shader_source_buffer;
 	
-	shdr = glCreateShader(type);
 	glShaderSource(shdr, 1, &_src, nil);
 	glCompileShader(shdr);
 	glGetShaderiv(shdr, GL_COMPILE_STATUS, &success);
@@ -133,6 +134,12 @@ compileshader(GLenum type, const char **src, GLuint *shader)
 	}
 	*shader = shdr;
 	return 0;
+#else
+	unsigned int size = *((unsigned int*)src[1]);
+	glShaderBinary(1, (const uint32_t*)&shdr, 0, src[0], size - 1);
+	*shader = shdr;
+	return 0;
+#endif
 }
 
 static int

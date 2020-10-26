@@ -170,7 +170,7 @@ static void*
 matfxOpen(void *o, int32, int32)
 {
 	matFXGlobals.pipelines[PLATFORM_GL3] = makeMatFXPipeline();
-
+#ifdef PSP2_USE_SHADER_COMPILER
 #ifdef RW_GLES2
 #include "gl2_shaders/matfx_gl2.inc"
 #else
@@ -179,6 +179,11 @@ matfxOpen(void *o, int32, int32)
 	const char *vs[] = { header_vert_src, matfx_env_vert_src, nil };
 	const char *fs[] = { header_frag_src, matfx_env_frag_src, nil };
 	envShader = Shader::create(vs, fs, false);
+#else
+	const char *vs[] = { (const char*)matfx_env_v, (const char*)&size_matfx_env_v, nil };
+	const char *fs[] = { (const char*)matfx_env_f, (const char*)&size_matfx_env_f, nil };
+	envShader = Shader::create(vs, fs, false);
+#endif
 	assert(envShader);
 
 	return o;
