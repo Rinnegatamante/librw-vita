@@ -276,7 +276,7 @@ rasterLock(Raster *raster, int32 level, int32 lockMode)
 	case Raster::TEXTURE:
 	case Raster::CAMERATEXTURE:
 		px = (uint8*)rwMalloc(raster->stride*raster->height, MEMDUR_EVENT | ID_DRIVER);
-memset(px, 0, raster->stride*raster->height);
+		memset(px, 0, raster->stride*raster->height);
 		assert(raster->pixels == nil);
 		raster->pixels = px;
 
@@ -563,7 +563,11 @@ static uint32
 getLevelSize(Raster *raster, int32 level)
 {
 	Gl3Raster *natras = PLUGINOFFSET(Gl3Raster, raster, nativeRasterOffset);
+#ifdef PSP2_NO_DXT_TEXTURES
 	uint32 size = raster->stride*raster->height;
+#else
+	uint32 size = raster->width*raster->height;
+#endif
 	while(level--)
 		size /= 4;
 	return size;
