@@ -65,7 +65,7 @@ rasterCreateTexture(Raster *raster)
 #endif
 
 #ifndef PSP2_NO_DXT_TEXTURES
-	natras->internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+	natras->internalFormat = natras->hasAlpha ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT : GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
 #endif
 
 	raster->stride = raster->width*natras->bpp;
@@ -292,7 +292,7 @@ rasterLock(Raster *raster, int32 level, int32 lockMode)
 				y++;
 			}		
 #else
-			memcpy_neon(px, p, raster->width * raster->height);
+			memcpy_neon(px, p, natras->hasAlpha ? (raster->width * raster->height) : (raster->width * raster->height / 2));
 #endif
 			bindTexture(prev);
 		}
@@ -323,7 +323,7 @@ rasterUnlock(Raster *raster, int32 level)
 		uint32 prev = bindTexture(natras->texid);
 		if (raster->privateFlags & Raster::LOCKRAW) {
 			void *p = vglGetTexDataPointer(GL_TEXTURE_2D);
-			memcpy_neon(p, raster->pixels, raster->width * raster->height);
+			memcpy_neon(p, raster->pixels, natras->hasAlpha ? (raster->width * raster->height) : (raster->width * raster->height / 2));
 		} else {	
 			glTexImage2D(GL_TEXTURE_2D, level, natras->internalFormat,
 					raster->width, raster->height,
@@ -566,7 +566,7 @@ getLevelSize(Raster *raster, int32 level)
 #ifdef PSP2_NO_DXT_TEXTURES
 	uint32 size = raster->stride*raster->height;
 #else
-	uint32 size = raster->width*raster->height;
+	uint32 size = natras->hasAlpha ? (raster->width*raster->height) : (raster->width*raster->height / 2);
 #endif
 	while(level--)
 		size /= 4;
