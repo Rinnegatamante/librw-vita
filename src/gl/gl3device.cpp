@@ -22,16 +22,17 @@ extern "C"{
 
 #define PLUGIN_ID 0
 
-uint16_t *gIndicesIm2DPtr;
-uint16_t *gIndicesIm3DPtr;
-float *gVertexBufferIm2DPtr;
-float *gVertexBufferIm3DPtr;
+uint16_t *gIndicesIm2DPtr[2];
+uint16_t *gIndicesIm3DPtr[2];
+float *gVertexBufferIm2DPtr[2];
+float *gVertexBufferIm3DPtr[2];
 
 uint16_t *gConstIndices;
 float *gVertexBufferIm2D;
 float *gVertexBufferIm3D;
 uint16_t *gIndicesIm2D;
 uint16_t *gIndicesIm3D;
+uint8_t ImIdx = 0;
 
 namespace rw {
 namespace gl3 {
@@ -1103,10 +1104,11 @@ beginUpdate(Camera *cam)
 
 	setFrameBuffer(cam);
 	vglStartRendering();
-	gVertexBufferIm2D = gVertexBufferIm2DPtr;
-	gVertexBufferIm3D = gVertexBufferIm3DPtr;
-	gIndicesIm2D = gIndicesIm2DPtr;
-	gIndicesIm3D = gIndicesIm3DPtr;
+	ImIdx = (ImIdx + 1) % 2;
+	gVertexBufferIm2D = gVertexBufferIm2DPtr[ImIdx];
+	gVertexBufferIm3D = gVertexBufferIm3DPtr[ImIdx];
+	gIndicesIm2D = gIndicesIm2DPtr[ImIdx];
+	gIndicesIm3D = gIndicesIm3DPtr[ImIdx];
 	
 	int w, h;
 	if(cam->frameBuffer->type == Raster::CAMERA){
@@ -1351,17 +1353,21 @@ openGLFW(EngineOpenParams *openparams)
 	glGlobals.winHeight = openparams->height;
 	glGlobals.winTitle = openparams->windowtitle;
 
-	gVertexBufferIm2DPtr = (float*)malloc(0x500000);
-	gVertexBufferIm3DPtr = (float*)malloc(0x1800000);
-	gIndicesIm2DPtr   = (uint16_t*)malloc(0x600000);
-	gIndicesIm3DPtr   = (uint16_t*)malloc(0x1800000);
+	gVertexBufferIm2DPtr[0] = (float*)malloc(0x500000);
+	gVertexBufferIm2DPtr[1] = (float*)malloc(0x500000);
+	gVertexBufferIm3DPtr[0] = (float*)malloc(0x1800000);
+	gVertexBufferIm3DPtr[1] = (float*)malloc(0x1800000);
+	gIndicesIm2DPtr[0]   = (uint16_t*)malloc(0x600000);
+	gIndicesIm2DPtr[1]   = (uint16_t*)malloc(0x600000);
+	gIndicesIm3DPtr[0]   = (uint16_t*)malloc(0x1800000);
+	gIndicesIm3DPtr[1]   = (uint16_t*)malloc(0x1800000);
 
 	gConstIndices = (uint16_t*)malloc(sizeof(uint16_t) * 0xFFFF);
 	
-	gVertexBufferIm2D = gVertexBufferIm2DPtr;
-	gVertexBufferIm3D = gVertexBufferIm3DPtr;
-	gIndicesIm2D = gIndicesIm2DPtr;
-	gIndicesIm3D = gIndicesIm3DPtr;
+	gVertexBufferIm2D = gVertexBufferIm2DPtr[0];
+	gVertexBufferIm3D = gVertexBufferIm3DPtr[0];
+	gIndicesIm2D = gIndicesIm2DPtr[0];
+	gIndicesIm3D = gIndicesIm3DPtr[0];
 	
 	for (uint16_t i = 0; i < 0xFFFF; i++) {
 		gConstIndices[i] = i;
