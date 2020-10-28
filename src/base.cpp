@@ -20,6 +20,9 @@
 #include "rwengine.h"
 
 #include <vitaGL.h>
+extern "C"{
+#include <math_neon.h>
+};
 
 namespace rw {
 
@@ -190,6 +193,9 @@ V3d::transformVectors(V3d *out, const V3d *in, int32 n, const Matrix *m)
 void
 RawMatrix::mult(RawMatrix *dst, RawMatrix *src1, RawMatrix *src2)
 {
+#ifdef PSP2
+	matmul4_neon((float*)&dst->right.x, (float*)&src1->right.x, (float*)&src2->right.x);
+#else
 	dst->right.x = src1->right.x*src2->right.x + src1->right.y*src2->up.x + src1->right.z*src2->at.x + src1->rightw*src2->pos.x;
 	dst->right.y = src1->right.x*src2->right.y + src1->right.y*src2->up.y + src1->right.z*src2->at.y + src1->rightw*src2->pos.y;
 	dst->right.z = src1->right.x*src2->right.z + src1->right.y*src2->up.z + src1->right.z*src2->at.z + src1->rightw*src2->pos.z;
@@ -206,6 +212,7 @@ RawMatrix::mult(RawMatrix *dst, RawMatrix *src1, RawMatrix *src2)
 	dst->pos.y   = src1->pos.x*src2->right.y   + src1->pos.y*src2->up.y   + src1->pos.z*src2->at.y + src1->posw*src2->pos.y;
 	dst->pos.z   = src1->pos.x*src2->right.z   + src1->pos.y*src2->up.z   + src1->pos.z*src2->at.z + src1->posw*src2->pos.z;
 	dst->posw    = src1->pos.x*src2->rightw    + src1->pos.y*src2->upw    + src1->pos.z*src2->atw  + src1->posw*src2->posw;
+#endif
 }
 
 void
