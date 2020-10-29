@@ -1103,7 +1103,9 @@ beginUpdate(Camera *cam)
 	}
 
 	setFrameBuffer(cam);
+#ifndef MIAMI_SUPPORT
 	vglStartRendering();
+#endif
 	ImIdx = (ImIdx + 1) % 2;
 	gVertexBufferIm2D = gVertexBufferIm2DPtr[ImIdx];
 	gVertexBufferIm3D = gVertexBufferIm3DPtr[ImIdx];
@@ -1134,7 +1136,9 @@ static
 void
 endUpdate(Camera *cam)
 {
+#ifndef MIAMI_SUPPORT
 	vglStopRendering();
+#endif
 }
 
 void log2file(const char *format, ...) {
@@ -1184,7 +1188,10 @@ showRaster(Raster *raster, uint32 flags)
 		vglWaitVblankStart(GL_FALSE);
 #endif
 	//log2file("showRaster called");
-	
+#ifdef MIAMI_SUPPORT
+	vglStopRendering();
+	vglStartRendering();
+#endif
 }
 
 static bool32
@@ -1379,7 +1386,9 @@ openGLFW(EngineOpenParams *openparams)
 #endif
 	vglInitExtended(0x10000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
 	vglUseVram(GL_TRUE);
-
+#ifdef MIAMI_SUPPORT
+	vglStartRendering();
+#endif
 	makeVideoModeList();
 
 	return 1;

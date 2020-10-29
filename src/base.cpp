@@ -194,7 +194,7 @@ void
 RawMatrix::mult(RawMatrix *dst, RawMatrix *src1, RawMatrix *src2)
 {
 #ifdef PSP2
-	matmul4_neon((float*)&dst->right.x, (float*)&src1->right.x, (float*)&src2->right.x);
+	matmul4_neon((float*)&src1->right.x, (float*)&src2->right.x, (float*)&dst->right.x);
 #else
 	dst->right.x = src1->right.x*src2->right.x + src1->right.y*src2->up.x + src1->right.z*src2->at.x + src1->rightw*src2->pos.x;
 	dst->right.y = src1->right.x*src2->right.y + src1->right.y*src2->up.y + src1->right.z*src2->at.y + src1->rightw*src2->pos.y;
