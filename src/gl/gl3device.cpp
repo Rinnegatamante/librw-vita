@@ -911,7 +911,7 @@ flushCache(void)
 {
 	flushGlRenderState();
 
-	glUniform4fv(U(u_matColor), 1, (GLfloat*)&matColorCache);
+	glUniform4fv(U(u_matColor), 1, &matColorCache.red);
 	glUniform4fv(U(u_surfProps), 1, surfPropsCache);
 		
 	// TODO: this is probably a stupid way to do it without UBOs
@@ -947,7 +947,7 @@ flushCache(void)
 		uniformState.fogDisable = rwStateCache.fogEnable ? 0.0f : 1.0f;
 		uniformState.fogStart = rwStateCache.fogStart;
 		uniformState.fogEnd = rwStateCache.fogEnd;
-		uniformState.fogRange = 1.0f/(rwStateCache.fogStart - rwStateCache.fogEnd);
+		uniformState.fogRange = 1.0f / (rwStateCache.fogStart - rwStateCache.fogEnd);
 
 		//if(uniformStateDirty[RWGL_ALPHAFUNC] || uniformStateDirty[RWGL_ALPHAREF]){
 			switch(alphaFunc){

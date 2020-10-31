@@ -65,7 +65,8 @@ rasterCreateTexture(Raster *raster)
 #endif
 
 #ifndef PSP2_NO_DXT_TEXTURES
-	natras->internalFormat = natras->hasAlpha ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT : GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+	if (raster->width >= 4 && raster->height >= 4)
+		natras->internalFormat = natras->hasAlpha ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT : GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
 #endif
 
 	raster->stride = raster->width*natras->bpp;
@@ -124,10 +125,6 @@ rasterCreateCameraTexture(Raster *raster)
 	natras->type = GL_UNSIGNED_BYTE;
 	natras->bpp = 3;
 #endif
-
-//#ifndef PSP2_NO_DXT_TEXTURES
-//	natras->internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-//#endif
 
 	raster->stride = raster->width*natras->bpp;
 
@@ -288,11 +285,18 @@ rasterLock(Raster *raster, int32 level, int32 lockMode)
 			uint32_t internal_stride = ALIGN(raster->width, 8) * natras->bpp;
 			while (y < raster->height) {
 				memcpy_neon(px, p, raster->stride);
-				px += internal_stride;
+				p += internal_stride;
 				y++;
 			}		
 #else
-			memcpy_neon(px, p, natras->hasAlpha ? (raster->width * raster->height) : (raster->width * raster->height / 2));
+			if (raster->width < 4 || raster->height < 4) {
+				uint32_t internal_stride = ALIGN(raster->width, 8) * natras->bpp;
+				while (y < raster->height) {
+					memcpy_neon(px, p, raster->stride);
+					p += internal_stride;
+					y++;
+				}	
+			} else memcpy_neon(px, p, natras->hasAlpha ? (raster->width * raster->height) : (raster->width * raster->height / 2));
 #endif
 			bindTexture(prev);
 		}
@@ -564,9 +568,11 @@ getLevelSize(Raster *raster, int32 level)
 {
 	Gl3Raster *natras = PLUGINOFFSET(Gl3Raster, raster, nativeRasterOffset);
 #ifdef PSP2_NO_DXT_TEXTURES
-	uint32 size = raster->stride*raster->height;
+	uint32 size = raster->stride * raster->height;
 #else
-	uint32 size = natras->hasAlpha ? (raster->width*raster->height) : (raster->width*raster->height / 2);
+	uint32 size;
+	if (raster->width < 4 || raster->height < 4) size = raster->stride * raster->height;
+	else size = natras->hasAlpha ? (raster->width*raster->height) : (raster->width*raster->height / 2);
 #endif
 	while(level--)
 		size /= 4;
@@ -617,7 +623,8 @@ readNativeTexture(Stream *stream)
 #ifdef PSP2_NO_DXT_TEXTURES
 			data = raster->lock(i, Raster::LOCKWRITE|Raster::LOCKNOFETCH);
 #else
-			data = raster->lock(i, Raster::LOCKWRITE|Raster::LOCKNOFETCH|Raster::LOCKRAW);
+			if (raster->width < 4 || raster->height < 4) data = raster->lock(i, Raster::LOCKWRITE|Raster::LOCKNOFETCH);
+			else data = raster->lock(i, Raster::LOCKWRITE|Raster::LOCKNOFETCH|Raster::LOCKRAW);
 #endif
 			stream->read8(data, size);
 			raster->unlock(i);
