@@ -152,9 +152,9 @@ int32 u_surfProps;
 
 Shader *defaultShader;
 
-static bool32 stateDirty = 1;
-static bool32 sceneDirty = 1;
-static bool32 objectDirty = 1;
+//static bool32 stateDirty = 1;
+//static bool32 sceneDirty = 1;
+//static bool32 objectDirty = 1;
 
 struct RwRasterStateCache {
 	Raster *raster;
@@ -210,7 +210,7 @@ enum
 
 	RWGL_NUM_STATES
 };
-static bool uniformStateDirty[RWGL_NUM_STATES];
+//static bool uniformStateDirty[RWGL_NUM_STATES];
 
 struct GlState {
 	bool32 blendEnable;
@@ -360,8 +360,8 @@ setAlphaTest(bool32 enable)
 		shaderfunc = rwStateCache.alphaTestEnable ? rwStateCache.alphaFunc : ALPHAALWAYS;
 		if(alphaFunc != shaderfunc){
 			alphaFunc = shaderfunc;
-			uniformStateDirty[RWGL_ALPHAFUNC] = true;
-			stateDirty = 1;
+//			uniformStateDirty[RWGL_ALPHAFUNC] = true;
+//			stateDirty = 1;
 		}
 	}
 }
@@ -375,8 +375,8 @@ setAlphaTestFunction(uint32 function)
 		shaderfunc = rwStateCache.alphaTestEnable ? rwStateCache.alphaFunc : ALPHAALWAYS;
 		if(alphaFunc != shaderfunc){
 			alphaFunc = shaderfunc;
-			uniformStateDirty[RWGL_ALPHAFUNC] = true;
-			stateDirty = 1;
+//			uniformStateDirty[RWGL_ALPHAFUNC] = true;
+//			stateDirty = 1;
 		}
 	}
 }
@@ -630,8 +630,8 @@ setRenderState(int32 state, void *pvalue)
 	case FOGENABLE:
 		if(rwStateCache.fogEnable != value){
 			rwStateCache.fogEnable = value;
-			uniformStateDirty[RWGL_FOG] = true;
-			stateDirty = 1;
+//			uniformStateDirty[RWGL_FOG] = true;
+//			stateDirty = 1;
 		}
 		break;
 	case FOGCOLOR:
@@ -642,8 +642,8 @@ setRenderState(int32 state, void *pvalue)
 		c.blue = value>>16;
 		c.alpha = value>>24;
 		convColor(&uniformState.fogColor, &c);
-		uniformStateDirty[RWGL_FOGCOLOR] = true;
-		stateDirty = 1;
+//		uniformStateDirty[RWGL_FOGCOLOR] = true;
+//		stateDirty = 1;
 		break;
 	case CULLMODE:
 		if(rwStateCache.cullmode != value){
@@ -663,8 +663,8 @@ setRenderState(int32 state, void *pvalue)
 	case ALPHATESTREF:
 		if(alphaRef != value/255.0f){
 			alphaRef = value/255.0f;
-			uniformStateDirty[RWGL_ALPHAREF] = true;
-			stateDirty = 1;
+//			uniformStateDirty[RWGL_ALPHAREF] = true;
+//			stateDirty = 1;
 		}
 		break;
 	case GSALPHATEST:
@@ -756,7 +756,7 @@ resetRenderState(void)
 	uniformState.fogColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	rwStateCache.gsalpha = 0;
 	rwStateCache.gsalpharef = 128;
-	stateDirty = 1;
+//	stateDirty = 1;
 
 	rwStateCache.vertexAlpha = 0;
 	rwStateCache.textureAlpha = 0;
@@ -794,7 +794,7 @@ void
 setWorldMatrix(Matrix *mat)
 {
 	convMatrix(&uniformObject.world, mat);
-	objectDirty = 1;
+//	objectDirty = 1;
 }
 
 int32
@@ -860,7 +860,7 @@ setLights(WorldLights *lightData)
 
 	uniformObject.lightParams[n].type = 0.0f;
 out:
-	objectDirty = 1;
+//	objectDirty = 1;
 	return bits;
 }
 
@@ -868,14 +868,14 @@ void
 setProjectionMatrix(float32 *mat)
 {
 	memcpy_neon(&uniformScene.proj, mat, 64);
-	sceneDirty = 1;
+//	sceneDirty = 1;
 }
 
 void
 setViewMatrix(float32 *mat)
 {
 	memcpy_neon(&uniformScene.view, mat, 64);
-	sceneDirty = 1;
+//	sceneDirty = 1;
 }
 
 Shader *lastShaderUploaded;
@@ -1093,13 +1093,13 @@ beginUpdate(Camera *cam)
 
 	if(rwStateCache.fogStart != cam->fogPlane){
 		rwStateCache.fogStart = cam->fogPlane;
-		uniformStateDirty[RWGL_FOGSTART] = true;
-		stateDirty = 1;
+//		uniformStateDirty[RWGL_FOGSTART] = true;
+//		stateDirty = 1;
 	}
 	if(rwStateCache.fogEnd != cam->farPlane){
 		rwStateCache.fogEnd = cam->farPlane;
-		uniformStateDirty[RWGL_FOGEND] = true;
-		stateDirty = 1;
+//		uniformStateDirty[RWGL_FOGEND] = true;
+//		stateDirty = 1;
 	}
 
 	setFrameBuffer(cam);
