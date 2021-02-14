@@ -415,10 +415,10 @@ void
 bindFramebuffer(uint32 fbo)
 {
 	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	if(currentFramebuffer != fbo){
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	//if(currentFramebuffer != fbo){
+	//	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		currentFramebuffer = fbo;
-	}
+	//}
 }
 
 // TODO: support mipmaps
@@ -995,7 +995,7 @@ setFrameBuffer(Camera *cam)
 	assert(fbuf);
 
 	Gl3Raster *natfb = PLUGINOFFSET(Gl3Raster, fbuf, nativeRasterOffset);
-	Gl3Raster *natzb = PLUGINOFFSET(Gl3Raster, zbuf, nativeRasterOffset);
+	//Gl3Raster *natzb = PLUGINOFFSET(Gl3Raster, zbuf, nativeRasterOffset);
 	assert(fbuf->type == Raster::CAMERA || fbuf->type == Raster::CAMERATEXTURE);
 
 	// Have to make sure depth buffer is attached to FB's fbo
@@ -1103,9 +1103,7 @@ beginUpdate(Camera *cam)
 	}
 
 	setFrameBuffer(cam);
-#ifndef MIAMI_SUPPORT
-	vglStartRendering();
-#endif
+
 	ImIdx = (ImIdx + 1) % 2;
 	gVertexBufferIm2D = gVertexBufferIm2DPtr[ImIdx];
 	gVertexBufferIm3D = gVertexBufferIm3DPtr[ImIdx];
@@ -1136,31 +1134,12 @@ static
 void
 endUpdate(Camera *cam)
 {
-#ifndef MIAMI_SUPPORT
-	vglStopRendering();
-#endif
-}
-
-void log2file(const char *format, ...) {
-	__gnuc_va_list arg;
-	int done;
-	va_start(arg, format);
-	char msg[512];
-	done = vsprintf(msg, format, arg);
-	va_end(arg);
-	int i;
-	sprintf(msg, "%s\n", msg);
-	FILE *log = fopen("ux0:/data/librw.log", "a+");
-	if (log != NULL) {
-		fwrite(msg, 1, strlen(msg), log);
-		fclose(log);
-	}
 }
 
 static void
 clearCamera(Camera *cam, RGBA *col, uint32 mode)
 {
-	RGBAf colf;
+	/*RGBAf colf;
 	int mask;
 
 	convColor(&colf, col);
@@ -1172,7 +1151,7 @@ clearCamera(Camera *cam, RGBA *col, uint32 mode)
 		mask |= GL_DEPTH_BUFFER_BIT;
 	glDepthMask(GL_TRUE);
 	glClear((GLbitfield)mask);
-	glDepthMask(rwStateCache.zwrite);
+	glDepthMask(rwStateCache.zwrite);*/
 }
 
 static void
@@ -1187,11 +1166,7 @@ showRaster(Raster *raster, uint32 flags)
 	else
 		vglWaitVblankStart(GL_FALSE);
 #endif
-	//log2file("showRaster called");
-#ifdef MIAMI_SUPPORT
-	vglStopRendering();
-	vglStartRendering();
-#endif
+	vglSwapBuffers(GL_FALSE);
 }
 
 static bool32
@@ -1384,11 +1359,8 @@ openGLFW(EngineOpenParams *openparams)
 #else
 	vglEnableRuntimeShaderCompiler(GL_FALSE);
 #endif
-	vglInitExtended(0x10000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
+	vglInitExtended(0, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
 	vglUseVram(GL_TRUE);
-#ifdef MIAMI_SUPPORT
-	vglStartRendering();
-#endif
 	makeVideoModeList();
 
 	return 1;
@@ -1457,7 +1429,7 @@ initOpenGL(void)
 	u_matColor = registerUniform("u_matColor");
 	u_surfProps = registerUniform("u_surfProps");
 
-	glClearColor(0.25, 0.25, 0.25, 1.0);
+	//glClearColor(0.25, 0.25, 0.25, 1.0);
 
 	byte whitepixel[4] = {0xFF, 0xFF, 0xFF, 0xFF};
 

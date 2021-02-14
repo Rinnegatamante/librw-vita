@@ -64,11 +64,9 @@ drawInst_GSemu(InstanceDataHeader *header, InstanceData *inst)
 void
 drawInst(InstanceDataHeader *header, InstanceData *inst)
 {
-#ifndef PSP2
 	if(rw::GetRenderState(rw::GSALPHATEST))
 		drawInst_GSemu(header, inst);
 	else
-#endif
 		drawInst_simple(header, inst);
 }
 

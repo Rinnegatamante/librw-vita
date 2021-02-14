@@ -46,7 +46,7 @@ static AttribDesc im2dattribDesc[3] = {
 static int primTypeMap[] = {
 	GL_POINTS,	// invalid
 	GL_LINES,
-	GL_LINE_STRIP,
+	GL_LINES,//_STRIP,
 	GL_TRIANGLES,
 	GL_TRIANGLE_STRIP,
 	GL_TRIANGLE_FAN,

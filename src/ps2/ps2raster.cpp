@@ -76,7 +76,7 @@ transferMinSize(int32 psm, int32 flags, int32 *minw, int32 *minh)
 	}
 }
 
-#define ALIGN(x,a) ((x) + (a)-1 & ~((a)-1))
+#define PS2ALIGN(x,a) ((x) + (a)-1 & ~((a)-1))
 #define ALIGN16(x) ((x) + 0xF & ~0xF)
 #define ALIGN64(x) ((x) + 0x3F & ~0x3F)
 #define NSIZE(dim,pagedim) (((dim) + (pagedim)-1)/(pagedim))
@@ -1121,9 +1121,9 @@ rasterCreateTexture(Raster *raster)
 		}
 		// What happens here?
 		if(ras->paletteSize && paltrxpos == 0)
-			ras->dataSize = ALIGN(ras->pixelSize,128) + ALIGN(ras->paletteSize,64) + extrasize + 0x70;
+			ras->dataSize = PS2ALIGN(ras->pixelSize,128) + PS2ALIGN(ras->paletteSize,64) + extrasize + 0x70;
 		else
-			ras->dataSize = ALIGN(ras->paletteSize+ras->pixelSize,64) + extrasize + 0x70;
+			ras->dataSize = PS2ALIGN(ras->paletteSize+ras->pixelSize,64) + extrasize + 0x70;
 		uint8 *data = (uint8*)mallocalign(ras->dataSize, 0x40);
 		uint32 *xferchain = (uint32*)(data + 0x10);
 		assert(data);
@@ -1131,10 +1131,10 @@ rasterCreateTexture(Raster *raster)
 		Ps2Raster::PixelPtr *pp = (Ps2Raster::PixelPtr*)data;
 		pp->numTransfers = numTransfers;
 		pp->numTotalTransfers = numTransfers;
-		pp->pixels = (uint8*)ALIGN((uintptr)data + extrasize, 128);
+		pp->pixels = (uint8*)PS2ALIGN((uintptr)data + extrasize, 128);
 		raster->pixels = (uint8*)pp;
 		if(ras->paletteSize)
-			raster->palette = pp->pixels + ALIGN(ras->pixelSize, 128) + 0x50;
+			raster->palette = pp->pixels + PS2ALIGN(ras->pixelSize, 128) + 0x50;
 		uint32 *p = (uint32*)pp->pixels;
 		w = raster->width;
 		h = raster->height;
