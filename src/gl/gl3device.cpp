@@ -1359,7 +1359,7 @@ openGLFW(EngineOpenParams *openparams)
 #else
 	vglEnableRuntimeShaderCompiler(GL_FALSE);
 #endif
-	vglInitExtended(0, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
+	vglInitExtended(0, 960, 544, 0x800000, SCE_GXM_MULTISAMPLE_4X);
 	vglUseVram(GL_TRUE);
 	makeVideoModeList();
 

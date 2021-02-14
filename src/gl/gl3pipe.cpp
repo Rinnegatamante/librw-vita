@@ -31,6 +31,7 @@ freeInstanceData(Geometry *geometry)
 	rwFree(header->indexBuffer);
 	rwFree(header->vertexBuffer);
 	rwFree(header->attribDesc);
+	rwFree(header->inst);
 	rwFree(header);
 }
 
