@@ -153,8 +153,8 @@ int32 u_surfProps;
 Shader *defaultShader;
 
 //static bool32 stateDirty = 1;
-//static bool32 sceneDirty = 1;
-//static bool32 objectDirty = 1;
+static bool32 sceneDirty = 1;
+static bool32 objectDirty = 1;
 
 struct RwRasterStateCache {
 	Raster *raster;
@@ -176,6 +176,14 @@ struct RwStateCache {
 	uint32 zwrite;
 	uint32 ztest;
 	uint32 cullmode;
+	uint32 stencilenable;
+	uint32 stencilpass;
+	uint32 stencilfail;
+	uint32 stencilzfail;
+	uint32 stencilfunc;
+	uint32 stencilref;
+	uint32 stencilmask;
+	uint32 stencilwritemask;
 	uint32 fogEnable;
 	float32 fogStart;
 	float32 fogEnd;
@@ -199,6 +207,14 @@ enum
 	RWGL_DEPTHMASK,
 	RWGL_CULL,
 	RWGL_CULLFACE,
+	RWGL_STENCIL,
+	RWGL_STENCILFUNC,
+	RWGL_STENCILFAIL,
+	RWGL_STENCILZFAIL,
+	RWGL_STENCILPASS,
+	RWGL_STENCILREF,
+	RWGL_STENCILMASK,
+	RWGL_STENCILWRITEMASK,
 
 	// uniforms
 	RWGL_ALPHAFUNC,
@@ -210,7 +226,7 @@ enum
 
 	RWGL_NUM_STATES
 };
-//static bool uniformStateDirty[RWGL_NUM_STATES];
+static bool uniformStateDirty[RWGL_NUM_STATES];
 
 struct GlState {
 	bool32 blendEnable;
@@ -223,6 +239,18 @@ struct GlState {
 
 	bool32 cullEnable;
 	uint32 cullFace;
+	
+	bool32 stencilEnable;
+	// glStencilFunc
+	uint32 stencilFunc;
+	uint32 stencilRef;
+	uint32 stencilMask;
+	// glStencilOp
+	uint32 stencilPass;
+	uint32 stencilFail;
+	uint32 stencilZFail;
+	// glStencilMask
+	uint32 stencilWriteMask;
 };
 static GlState curGlState, oldGlState;
 
@@ -246,6 +274,30 @@ static uint32 blendMap[] = {
 	GL_SRC_ALPHA_SATURATE,
 };
 
+static uint32 stencilOpMap[] = {
+	GL_KEEP,	// actually invalid
+	GL_KEEP,
+	GL_ZERO,
+	GL_REPLACE,
+	GL_INCR,
+	GL_DECR,
+	GL_INVERT,
+	GL_INCR_WRAP,
+	GL_DECR_WRAP
+};
+
+static uint32 stencilFuncMap[] = {
+	GL_NEVER,	// actually invalid
+	GL_NEVER,
+	GL_LESS,
+	GL_EQUAL,
+	GL_LEQUAL,
+	GL_GREATER,
+	GL_NOTEQUAL,
+	GL_GEQUAL,
+	GL_ALWAYS
+};
+
 /*
  * GL state cache
  */
@@ -262,45 +314,78 @@ setGlRenderState(uint32 state, uint32 value)
 	case RWGL_DEPTHMASK: curGlState.depthMask = value; break;
 	case RWGL_CULL: curGlState.cullEnable = value; break;
 	case RWGL_CULLFACE: curGlState.cullFace = value; break;
+	case RWGL_STENCIL: curGlState.stencilEnable = value; break;
+	case RWGL_STENCILFUNC: curGlState.stencilFunc = value; break;
+	case RWGL_STENCILFAIL: curGlState.stencilFail = value; break;
+	case RWGL_STENCILZFAIL: curGlState.stencilZFail = value; break;
+	case RWGL_STENCILPASS: curGlState.stencilPass = value; break;
+	case RWGL_STENCILREF: curGlState.stencilRef = value; break;
+	case RWGL_STENCILMASK: curGlState.stencilMask = value; break;
+	case RWGL_STENCILWRITEMASK: curGlState.stencilWriteMask = value; break;
 	}
 }
 
 void
 flushGlRenderState(void)
 {
-	//if(oldGlState.blendEnable != curGlState.blendEnable){
+	if(oldGlState.blendEnable != curGlState.blendEnable){
 		oldGlState.blendEnable = curGlState.blendEnable;
 		(oldGlState.blendEnable ? glEnable : glDisable)(GL_BLEND);
-	//}
+	}
 
-	//if(oldGlState.srcblend != curGlState.srcblend ||
-	//   oldGlState.destblend != curGlState.destblend){
+	if(oldGlState.srcblend != curGlState.srcblend ||
+	   oldGlState.destblend != curGlState.destblend){
 		oldGlState.srcblend = curGlState.srcblend;
 		oldGlState.destblend = curGlState.destblend;
 		glBlendFunc(oldGlState.srcblend, oldGlState.destblend);
-	//}
+	}
 
-	//if(oldGlState.depthTest != curGlState.depthTest){
+	if(oldGlState.depthTest != curGlState.depthTest){
 		oldGlState.depthTest = curGlState.depthTest;
 		(oldGlState.depthTest ? glEnable : glDisable)(GL_DEPTH_TEST);
-	//}
-	//if(oldGlState.depthFunc != curGlState.depthFunc){
+	}
+	if(oldGlState.depthFunc != curGlState.depthFunc){
 		oldGlState.depthFunc = curGlState.depthFunc;
 		glDepthFunc(oldGlState.depthFunc);
-	//}
-	//if(oldGlState.depthMask != curGlState.depthMask){
+	}
+	if(oldGlState.depthMask != curGlState.depthMask){
 		oldGlState.depthMask = curGlState.depthMask;
 		glDepthMask(oldGlState.depthMask);
-	//}
+	}
+	
+	if(oldGlState.stencilEnable != curGlState.stencilEnable){
+		oldGlState.stencilEnable = curGlState.stencilEnable;
+		(oldGlState.stencilEnable ? glEnable : glDisable)(GL_STENCIL_TEST);
+	}
+	if(oldGlState.stencilFunc != curGlState.stencilFunc ||
+	   oldGlState.stencilRef != curGlState.stencilRef ||
+	   oldGlState.stencilMask != curGlState.stencilMask){
+		oldGlState.stencilFunc = curGlState.stencilFunc;
+		oldGlState.stencilRef = curGlState.stencilRef;
+		oldGlState.stencilMask = curGlState.stencilMask;
+		glStencilFunc(oldGlState.stencilFunc, oldGlState.stencilRef, oldGlState.stencilMask);
+	}
+	if(oldGlState.stencilPass != curGlState.stencilPass ||
+	   oldGlState.stencilFail != curGlState.stencilFail ||
+	   oldGlState.stencilZFail != curGlState.stencilZFail){
+		oldGlState.stencilPass = curGlState.stencilPass;
+		oldGlState.stencilFail = curGlState.stencilFail;
+		oldGlState.stencilZFail = curGlState.stencilZFail;
+		glStencilOp(oldGlState.stencilFail, oldGlState.stencilZFail, oldGlState.stencilPass);
+	}
+	if(oldGlState.stencilWriteMask != curGlState.stencilWriteMask){
+		oldGlState.stencilWriteMask = curGlState.stencilWriteMask;
+		glStencilMask(oldGlState.stencilWriteMask);
+	}
 
-	//if(oldGlState.cullEnable != curGlState.cullEnable){
+	if(oldGlState.cullEnable != curGlState.cullEnable){
 		oldGlState.cullEnable = curGlState.cullEnable;
 		(oldGlState.cullEnable ? glEnable : glDisable)(GL_CULL_FACE);
-	//}
-	//if(oldGlState.cullFace != curGlState.cullFace){
+	}
+	if(oldGlState.cullFace != curGlState.cullFace){
 		oldGlState.cullFace = curGlState.cullFace;
 		glCullFace(oldGlState.cullFace);
-	//}
+	}
 }
 
 
@@ -308,10 +393,10 @@ flushGlRenderState(void)
 void
 setAlphaBlend(bool32 enable)
 {
-	//if(rwStateCache.blendEnable != enable){
+	if(rwStateCache.blendEnable != enable){
 		rwStateCache.blendEnable = enable;
 		setGlRenderState(RWGL_BLEND, enable);
-	//}
+	}
 }
 
 bool32
@@ -360,8 +445,8 @@ setAlphaTest(bool32 enable)
 		shaderfunc = rwStateCache.alphaTestEnable ? rwStateCache.alphaFunc : ALPHAALWAYS;
 		if(alphaFunc != shaderfunc){
 			alphaFunc = shaderfunc;
-//			uniformStateDirty[RWGL_ALPHAFUNC] = true;
-//			stateDirty = 1;
+			uniformStateDirty[RWGL_ALPHAFUNC] = true;
+			//stateDirty = 1;
 		}
 	}
 }
@@ -375,8 +460,8 @@ setAlphaTestFunction(uint32 function)
 		shaderfunc = rwStateCache.alphaTestEnable ? rwStateCache.alphaFunc : ALPHAALWAYS;
 		if(alphaFunc != shaderfunc){
 			alphaFunc = shaderfunc;
-//			uniformStateDirty[RWGL_ALPHAFUNC] = true;
-//			stateDirty = 1;
+			uniformStateDirty[RWGL_ALPHAFUNC] = true;
+			//stateDirty = 1;
 		}
 	}
 }
@@ -537,7 +622,8 @@ setRasterStage(uint32 stage, Raster *raster)
 		if(raster){
 			assert(raster->platform == PLATFORM_GL3);
 			Gl3Raster *natras = PLUGINOFFSET(Gl3Raster, raster, nativeRasterOffset);
-			bindTexture(natras->texid);
+			if (natras->texid < 0 || natras->texid > 0xFFFF) bindTexture(whitetex);
+			else bindTexture(natras->texid);
 			uint32 filter = rwStateCache.texstage[stage].filter;
 			uint32 addrU = rwStateCache.texstage[stage].addressingU;
 			uint32 addrV = rwStateCache.texstage[stage].addressingV;
@@ -630,8 +716,8 @@ setRenderState(int32 state, void *pvalue)
 	case FOGENABLE:
 		if(rwStateCache.fogEnable != value){
 			rwStateCache.fogEnable = value;
-//			uniformStateDirty[RWGL_FOG] = true;
-//			stateDirty = 1;
+			uniformStateDirty[RWGL_FOG] = true;
+			//stateDirty = 1;
 		}
 		break;
 	case FOGCOLOR:
@@ -642,8 +728,8 @@ setRenderState(int32 state, void *pvalue)
 		c.blue = value>>16;
 		c.alpha = value>>24;
 		convColor(&uniformState.fogColor, &c);
-//		uniformStateDirty[RWGL_FOGCOLOR] = true;
-//		stateDirty = 1;
+		uniformStateDirty[RWGL_FOGCOLOR] = true;
+		//stateDirty = 1;
 		break;
 	case CULLMODE:
 		if(rwStateCache.cullmode != value){
@@ -656,6 +742,56 @@ setRenderState(int32 state, void *pvalue)
 			}
 		}
 		break;
+		
+	case STENCILENABLE:
+		if(rwStateCache.stencilenable != value){
+			rwStateCache.stencilenable = value;
+			setGlRenderState(RWGL_STENCIL, value);
+		}
+		break;
+	case STENCILFAIL:
+		if(rwStateCache.stencilfail != value){
+			rwStateCache.stencilfail = value;
+			setGlRenderState(RWGL_STENCILFAIL, stencilOpMap[value]);
+		}
+		break;
+	case STENCILZFAIL:
+		if(rwStateCache.stencilzfail != value){
+			rwStateCache.stencilzfail = value;
+			setGlRenderState(RWGL_STENCILZFAIL, stencilOpMap[value]);
+		}
+		break;
+	case STENCILPASS:
+		if(rwStateCache.stencilpass != value){
+			rwStateCache.stencilpass = value;
+			setGlRenderState(RWGL_STENCILPASS, stencilOpMap[value]);
+		}
+		break;
+	case STENCILFUNCTION:
+		if(rwStateCache.stencilfunc != value){
+			rwStateCache.stencilfunc = value;
+			setGlRenderState(RWGL_STENCILFUNC, stencilFuncMap[value]);
+		}
+		break;
+	case STENCILFUNCTIONREF:
+		if(rwStateCache.stencilref != value){
+			rwStateCache.stencilref = value;
+			setGlRenderState(RWGL_STENCILREF, value);
+		}
+		break;
+	case STENCILFUNCTIONMASK:
+		if(rwStateCache.stencilmask != value){
+			rwStateCache.stencilmask = value;
+			setGlRenderState(RWGL_STENCILMASK, value);
+		}
+		break;
+	case STENCILFUNCTIONWRITEMASK:
+		if(rwStateCache.stencilwritemask != value){
+			rwStateCache.stencilwritemask = value;
+			setGlRenderState(RWGL_STENCILWRITEMASK, value);
+		}
+		break;
+
 
 	case ALPHATESTFUNC:
 		setAlphaTestFunction(value);
@@ -663,7 +799,7 @@ setRenderState(int32 state, void *pvalue)
 	case ALPHATESTREF:
 		if(alphaRef != value/255.0f){
 			alphaRef = value/255.0f;
-//			uniformStateDirty[RWGL_ALPHAREF] = true;
+			uniformStateDirty[RWGL_ALPHAREF] = true;
 //			stateDirty = 1;
 		}
 		break;
@@ -724,6 +860,31 @@ getRenderState(int32 state)
 	case CULLMODE:
 		val = rwStateCache.cullmode;
 		break;
+		
+	case STENCILENABLE:
+		val = rwStateCache.stencilenable;
+		break;
+	case STENCILFAIL:
+		val = rwStateCache.stencilfail;
+		break;
+	case STENCILZFAIL:
+		val = rwStateCache.stencilzfail;
+		break;
+	case STENCILPASS:
+		val = rwStateCache.stencilpass;
+		break;
+	case STENCILFUNCTION:
+		val = rwStateCache.stencilfunc;
+		break;
+	case STENCILFUNCTIONREF:
+		val = rwStateCache.stencilref;
+		break;
+	case STENCILFUNCTIONMASK:
+		val = rwStateCache.stencilmask;
+		break;
+	case STENCILFUNCTIONWRITEMASK:
+		val = rwStateCache.stencilwritemask;
+		break;
 
 	case ALPHATESTFUNC:
 		val = rwStateCache.alphaFunc;
@@ -781,6 +942,23 @@ resetRenderState(void)
 	rwStateCache.cullmode = CULLNONE;
 	setGlRenderState(RWGL_CULL, false);
 	setGlRenderState(RWGL_CULLFACE, GL_BACK);
+	
+	rwStateCache.stencilenable = 0;
+	setGlRenderState(RWGL_STENCIL, GL_FALSE);
+	rwStateCache.stencilfail = STENCILKEEP;
+	setGlRenderState(RWGL_STENCILFAIL, GL_KEEP);
+	rwStateCache.stencilzfail = STENCILKEEP;
+	setGlRenderState(RWGL_STENCILZFAIL, GL_KEEP);
+	rwStateCache.stencilpass = STENCILKEEP;
+	setGlRenderState(RWGL_STENCILPASS, GL_KEEP);
+	rwStateCache.stencilfunc = STENCILALWAYS;
+	setGlRenderState(RWGL_STENCILFUNC, GL_ALWAYS);
+	rwStateCache.stencilref = 0;
+	setGlRenderState(RWGL_STENCILREF, 0);
+	rwStateCache.stencilmask = 0xFFFFFFFF;
+	setGlRenderState(RWGL_STENCILMASK, 0xFFFFFFFF);
+	rwStateCache.stencilwritemask = 0xFFFFFFFF;
+	setGlRenderState(RWGL_STENCILWRITEMASK, 0xFFFFFFFF);
 
 	activeTexture = -1;
 	for(int i = 0; i < MAXNUMSTAGES; i++){
@@ -794,7 +972,7 @@ void
 setWorldMatrix(Matrix *mat)
 {
 	convMatrix(&uniformObject.world, mat);
-//	objectDirty = 1;
+	objectDirty = 1;
 }
 
 int32
@@ -860,7 +1038,7 @@ setLights(WorldLights *lightData)
 
 	uniformObject.lightParams[n].type = 0.0f;
 out:
-//	objectDirty = 1;
+	objectDirty = 1;
 	return bits;
 }
 
@@ -868,14 +1046,14 @@ void
 setProjectionMatrix(float32 *mat)
 {
 	memcpy_neon(&uniformScene.proj, mat, 64);
-//	sceneDirty = 1;
+	sceneDirty = 1;
 }
 
 void
 setViewMatrix(float32 *mat)
 {
 	memcpy_neon(&uniformScene.view, mat, 64);
-//	sceneDirty = 1;
+	sceneDirty = 1;
 }
 
 Shader *lastShaderUploaded;
@@ -915,32 +1093,34 @@ flushCache(void)
 	glUniform4fv(U(u_surfProps), 1, surfPropsCache);
 		
 	// TODO: this is probably a stupid way to do it without UBOs
-	/*if(lastShaderUploaded != currentShader){
+	if(lastShaderUploaded != currentShader){
 		lastShaderUploaded = currentShader;
 		objectDirty = 1;
 		sceneDirty = 1;
-		stateDirty = 1;
+		//stateDirty = 1;
 
 		int i;
 		for(i = 0; i < RWGL_NUM_STATES; i++)
 			uniformStateDirty[i] = true;
-	}*/
-
-	//if(objectDirty){
-		glUniformMatrix4fv(U(u_world), 1, 0, (float*)&uniformObject.world);
-		
+	}
+	
+	if(sceneDirty){
 		float wv[16], wvp[16];
 		matmul4_neon((float *)uniformScene.view, (float *)&uniformObject.world, (float *)wv);
 		matmul4_neon((float *)uniformScene.proj, (float *)wv, (float *)wvp);
 		glUniformMatrix4fv(U(u_wvp), 1, 0, (float*)wvp);
+	}
+
+	if(objectDirty){
+		glUniformMatrix4fv(U(u_world), 1, 0, (float*)&uniformObject.world);
 		
 		glUniform4fv(U(u_ambLight), 1, (float*)&uniformObject.ambLight);
 		glUniform4fv(U(u_lightParams), MAX_LIGHTS, (float*)uniformObject.lightParams);
 		//glUniform4fv(U(u_lightPosition), MAX_LIGHTS, (float*)uniformObject.lightPosition);
 		glUniform4fv(U(u_lightDirection), MAX_LIGHTS, (float*)uniformObject.lightDirection);
 		glUniform4fv(U(u_lightColor), MAX_LIGHTS, (float*)uniformObject.lightColor);
-	//	objectDirty = 0;
-	//}
+		objectDirty = 0;
+	}
 
 //	if(stateDirty){
 
@@ -949,7 +1129,7 @@ flushCache(void)
 		uniformState.fogEnd = rwStateCache.fogEnd;
 		uniformState.fogRange = 1.0f / (rwStateCache.fogStart - rwStateCache.fogEnd);
 
-		//if(uniformStateDirty[RWGL_ALPHAFUNC] || uniformStateDirty[RWGL_ALPHAREF]){
+		if(uniformStateDirty[RWGL_ALPHAFUNC] || uniformStateDirty[RWGL_ALPHAREF]){
 			switch(alphaFunc){
 			case ALPHAALWAYS:
 			default:
@@ -962,13 +1142,13 @@ flushCache(void)
 				glUniform2f(U(u_alphaRef), -1000.0f, alphaRef);
 				break;
 			}
-			//uniformStateDirty[RWGL_ALPHAFUNC] = false;
-			//uniformStateDirty[RWGL_ALPHAREF] = false;
-		//}
+			uniformStateDirty[RWGL_ALPHAFUNC] = false;
+			uniformStateDirty[RWGL_ALPHAREF] = false;
+		}
 
-		/*if(uniformStateDirty[RWGL_FOG] ||
+		if(uniformStateDirty[RWGL_FOG] ||
 		   uniformStateDirty[RWGL_FOGSTART] ||
-		   uniformStateDirty[RWGL_FOGEND]){*/
+		   uniformStateDirty[RWGL_FOGEND]){
 			float fogData[4] = {
 				uniformState.fogStart,
 				uniformState.fogEnd,
@@ -976,15 +1156,15 @@ flushCache(void)
 				uniformState.fogDisable
 			};
 			glUniform4fv(U(u_fogData), 1, fogData);
-		//	uniformStateDirty[RWGL_FOG] = false;
-		//	uniformStateDirty[RWGL_FOGSTART] = false;
-		//	uniformStateDirty[RWGL_FOGEND] = false;
-		//}
+			uniformStateDirty[RWGL_FOG] = false;
+			uniformStateDirty[RWGL_FOGSTART] = false;
+			uniformStateDirty[RWGL_FOGEND] = false;
+		}
 
-		//if(uniformStateDirty[RWGL_FOGCOLOR]){
+		if(uniformStateDirty[RWGL_FOGCOLOR]){
 			glUniform4fv(U(u_fogColor), 1, (float*)&uniformState.fogColor);
-		//	uniformStateDirty[RWGL_FOGCOLOR] = false;
-		//}
+			uniformStateDirty[RWGL_FOGCOLOR] = false;
+		}
 }
 
 static void
@@ -1093,13 +1273,13 @@ beginUpdate(Camera *cam)
 
 	if(rwStateCache.fogStart != cam->fogPlane){
 		rwStateCache.fogStart = cam->fogPlane;
-//		uniformStateDirty[RWGL_FOGSTART] = true;
-//		stateDirty = 1;
+		uniformStateDirty[RWGL_FOGSTART] = true;
+		//stateDirty = 1;
 	}
 	if(rwStateCache.fogEnd != cam->farPlane){
 		rwStateCache.fogEnd = cam->farPlane;
-//		uniformStateDirty[RWGL_FOGEND] = true;
-//		stateDirty = 1;
+		uniformStateDirty[RWGL_FOGEND] = true;
+		//stateDirty = 1;
 	}
 
 	setFrameBuffer(cam);
