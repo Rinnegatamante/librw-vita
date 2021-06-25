@@ -11,6 +11,7 @@
 #include "rwobjects.h"
 #include "rwengine.h"
 
+#include <vitasdk.h>
 #include <vitaGL.h>
 
 #define PLUGIN_ID ID_GEOMETRY

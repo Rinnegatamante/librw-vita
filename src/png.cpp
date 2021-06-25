@@ -12,6 +12,7 @@
 
 #include "lodepng/lodepng.h"
 
+#include <vitasdk.h>
 #include <vitaGL.h>
 
 #ifdef _WIN32

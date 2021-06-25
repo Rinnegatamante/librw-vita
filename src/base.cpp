@@ -19,6 +19,7 @@
 #include "rwobjects.h"
 #include "rwengine.h"
 
+#include <vitasdk.h>
 #include <vitaGL.h>
 extern "C"{
 #include <math_neon.h>

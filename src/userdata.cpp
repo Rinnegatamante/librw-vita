@@ -11,6 +11,7 @@
 #include "rwengine.h"
 #include "rwuserdata.h"
 
+#include <vitasdk.h>
 #include <vitaGL.h>
 
 #define PLUGIN_ID ID_USERDATA

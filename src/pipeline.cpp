@@ -9,6 +9,7 @@
 #include "rwobjects.h"
 #include "rwengine.h"
 
+#include <vitasdk.h>
 #include <vitaGL.h>
 
 #define COLOR_ARGB(a,r,g,b) \

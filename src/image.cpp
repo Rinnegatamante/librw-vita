@@ -17,6 +17,7 @@
 
 #define PLUGIN_ID ID_IMAGE
 
+#include <vitasdk.h>
 #include <vitaGL.h>
 
 namespace rw {
